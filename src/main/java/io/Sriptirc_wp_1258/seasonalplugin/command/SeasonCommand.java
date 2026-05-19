@@ -21,13 +21,7 @@ public class SeasonCommand implements CommandExecutor, TabCompleter {
 
     private final SeasonManager seasonManager;
 
-    // 四季的图标
-    private static final String SPRING_ICON = "§a❀";
-    private static final String SUMMER_ICON = "§e☀";
-    private static final String AUTUMN_ICON = "§6☂";
-    private static final String WINTER_ICON = "§b❄";
-
-    // 生长评级
+    // 生长评级（保留备用）
     private static final String CAN_GROW = "§a✔";
     private static final String CANT_GROW = "§c✘";
 
@@ -73,56 +67,47 @@ public class SeasonCommand implements CommandExecutor, TabCompleter {
     }
 
     /**
-     * 显示所有作物的四季生长情况表
+     * 显示当前季节适合种植的作物
      */
     private void showCropTable(CommandSender sender) {
         Season current = seasonManager.getCurrentSeason();
 
-        sender.sendMessage("§6╔══════════════════════════════════════╗");
-        sender.sendMessage("§6║ §e作物四季生长适配表 " + SPRING_ICON + " " + SUMMER_ICON + " " + AUTUMN_ICON + " " + WINTER_ICON + "      §6║");
-        sender.sendMessage("§6╠══════════════════════════════════════╣");
-        sender.sendMessage("§6║  " + SPRING_ICON + " 春  " + SUMMER_ICON + " 夏  " + AUTUMN_ICON + " 秋  " + WINTER_ICON + " 冬           §6║");
-        sender.sendMessage("§6╠══════════════════════════════════════╣");
+        sender.sendMessage("§6╔════════════════════════════╗");
+        sender.sendMessage("§6║  §e" + current.getColoredName() + "§e季 适宜种植的作物  §6║");
+        sender.sendMessage("§6╠════════════════════════════╣");
 
-        // 遍历所有受季节影响的作物
         List<Material> crops = CropRegistry.getAllSeasonRestrictedCrops();
+        List<String> suitable = new ArrayList<>();
+        List<String> unsuitable = new ArrayList<>();
+
         for (Material crop : crops) {
             String name = CropRegistry.formatCropName(crop);
             Set<Season> allowed = CropRegistry.getAllowedSeasons(crop);
-
-            String spring = allowed.contains(Season.SPRING) ? CAN_GROW : CANT_GROW;
-            String summer = allowed.contains(Season.SUMMER) ? CAN_GROW : CANT_GROW;
-            String autumn = allowed.contains(Season.AUTUMN) ? CAN_GROW : CANT_GROW;
-            String winter = allowed.contains(Season.WINTER) ? CAN_GROW : CANT_GROW;
-
-            // 当前季节高亮
-            String highlight = allowed.contains(current) ? " §a← 推荐" : "";
-
-            sender.sendMessage("§6║ §f" + padRight(name, 8)
-                    + " " + spring + "  " + summer + "  " + autumn + "  " + winter
-                    + highlight + " §6║");
+            if (allowed.contains(current)) {
+                suitable.add("§a" + name);
+            } else {
+                unsuitable.add("§7" + name);
+            }
         }
 
-        // 不受季节影响的作物
-        sender.sendMessage("§6╠══════════════════════════════════════╣");
-        sender.sendMessage("§6║ §7不受季节影响: 下界疣, 蘑菇类      §6║");
-        sender.sendMessage("§6╚══════════════════════════════════════╝");
-
-        sender.sendMessage("§7" + CAN_GROW + " = 可生长  " + CANT_GROW + " = 无法生长");
-    }
-
-    /**
-     * 中文字符串右补空格对齐
-     */
-    private String padRight(String text, int length) {
-        // 中文算 2 个宽度
-        int actualLen = 0;
-        for (char c : text.toCharArray()) {
-            actualLen += (c >= 0x4E00 && c <= 0x9FFF) ? 2 : 1;
+        if (!suitable.isEmpty()) {
+            sender.sendMessage("§6║ §f✔ 适合种植:              §6║");
+            for (String s : suitable) {
+                sender.sendMessage("§6║    " + s + " §6║");
+            }
         }
-        int padding = length - actualLen;
-        if (padding < 0) padding = 0;
-        return text + " ".repeat(padding);
+
+        if (!unsuitable.isEmpty()) {
+            sender.sendMessage("§6╠════════════════════════════╣");
+            sender.sendMessage("§6║ §f✘ 不适合种植:            §6║");
+            for (String s : unsuitable) {
+                sender.sendMessage("§6║    " + s + " §6║");
+            }
+        }
+
+        sender.sendMessage("§6╠════════════════════════════╣");
+        sender.sendMessage("§6║ §7不受季节影响: 下界疣, 蘑菇 §6║");
+        sender.sendMessage("§6╚════════════════════════════╝");
     }
 
     private String getSeasonTip(Season season) {

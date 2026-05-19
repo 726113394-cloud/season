@@ -59,13 +59,15 @@ public final class SeasonalPlugin extends JavaPlugin {
             getServer().getPluginManager().registerEvents(tipManager, this);
             tipManager.startDailyTipTask();
 
-            // 树叶季节粒子效果
+            // 树叶季节颜色（biome 切换 + 樱花替换）
             this.leafColorManager = new LeafColorManager(this, seasonManager, configManager);
-            leafColorManager.startLeafParticleTask();
+            getServer().getPluginManager().registerEvents(leafColorManager, this);
+            leafColorManager.startBiomeTask();
 
             // 注册命令
             getCommand("season").setExecutor(new SeasonCommand(seasonManager));
             SeasonAdminCommand adminCmd = new SeasonAdminCommand(this, seasonManager, weatherManager);
+            adminCmd.setLeafColorManager(leafColorManager);
             getCommand("seasonadmin").setExecutor(adminCmd);
             getCommand("seasonadmin").setTabCompleter(adminCmd);
 

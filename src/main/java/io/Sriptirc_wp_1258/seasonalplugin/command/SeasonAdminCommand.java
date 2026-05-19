@@ -1,6 +1,7 @@
 package io.Sriptirc_wp_1258.seasonalplugin.command;
 
 import io.Sriptirc_wp_1258.seasonalplugin.SeasonalPlugin;
+import io.Sriptirc_wp_1258.seasonalplugin.mechanic.LeafColorManager;
 import io.Sriptirc_wp_1258.seasonalplugin.season.Season;
 import io.Sriptirc_wp_1258.seasonalplugin.season.SeasonManager;
 import io.Sriptirc_wp_1258.seasonalplugin.weather.WeatherManager;
@@ -23,11 +24,16 @@ public class SeasonAdminCommand implements CommandExecutor, TabCompleter {
     private final SeasonalPlugin plugin;
     private final SeasonManager seasonManager;
     private final WeatherManager weatherManager;
+    private LeafColorManager leafColorManager;
 
     public SeasonAdminCommand(SeasonalPlugin plugin, SeasonManager seasonManager, WeatherManager weatherManager) {
         this.plugin = plugin;
         this.seasonManager = seasonManager;
         this.weatherManager = weatherManager;
+    }
+
+    public void setLeafColorManager(LeafColorManager leafColorManager) {
+        this.leafColorManager = leafColorManager;
     }
 
     @Override
@@ -38,7 +44,7 @@ public class SeasonAdminCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 0) {
-            sender.sendMessage("§6用法: /seasonadmin set <季节> | /seasonadmin reload");
+            sender.sendMessage("§6用法: /seasonadmin set <季节> | reload | leafrefresh");
             return true;
         }
 
@@ -53,6 +59,7 @@ public class SeasonAdminCommand implements CommandExecutor, TabCompleter {
                     seasonManager.setSeason(season);
                     weatherManager.refreshWeather();
                     sender.sendMessage("§a季节已设置为 " + season.getColoredName());
+                    sender.sendMessage("§7树叶和biome将在30秒内自动更新");
                 } catch (IllegalArgumentException e) {
                     sender.sendMessage("§c无效季节，可用: spring, summer, autumn, winter");
                 }
@@ -61,8 +68,33 @@ public class SeasonAdminCommand implements CommandExecutor, TabCompleter {
                 plugin.reloadConfig();
                 sender.sendMessage("§a配置已重载");
             }
+            case "leafrefresh" -> {
+                if (leafColorManager != null) {
+                    leafColorManager.forceRefresh();
+                    sender.sendMessage("§a树叶/biome已强制刷新！");
+                } else {
+                    sender.sendMessage("§c树叶管理器未就绪");
+                }
+            }
+            case "blossom" -> {
+                if (leafColorManager != null) {
+                    if (args.length > 1 && args[1].equalsIgnoreCase("off")) {
+                        leafColorManager.forceBlossomEnd();
+                        sender.sendMessage("§a已强制结束花期，樱花→橡树");
+                    } else {
+                        boolean success = leafColorManager.forceBlossomStart();
+                        if (success) {
+                            sender.sendMessage("§d🌸 已强制进入花期！橡树→樱花，将持续到夏季");
+                        } else {
+                            sender.sendMessage("§c当前不是春季，无法进入花期！");
+                        }
+                    }
+                } else {
+                    sender.sendMessage("§c树叶管理器未就绪");
+                }
+            }
             default -> {
-                sender.sendMessage("§c未知子命令，可用: set, reload");
+                sender.sendMessage("§c未知子命令，可用: set, reload, leafrefresh, blossom");
             }
         }
 
@@ -74,7 +106,7 @@ public class SeasonAdminCommand implements CommandExecutor, TabCompleter {
         if (!sender.hasPermission("seasonalplugin.admin")) return new ArrayList<>();
 
         if (args.length == 1) {
-            return Arrays.asList("set", "reload").stream()
+            return Arrays.asList("set", "reload", "leafrefresh", "blossom").stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList());
         }
@@ -83,6 +115,12 @@ public class SeasonAdminCommand implements CommandExecutor, TabCompleter {
             return Arrays.stream(Season.values())
                     .map(Enum::name)
                     .map(String::toLowerCase)
+                    .filter(s -> s.startsWith(args[1].toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        if (args.length == 2 && args[0].equalsIgnoreCase("blossom")) {
+            return Arrays.asList("off").stream()
                     .filter(s -> s.startsWith(args[1].toLowerCase()))
                     .collect(Collectors.toList());
         }
