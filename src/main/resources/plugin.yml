@@ -1,0 +1,20 @@
+name: SeasonalPlugin
+version: '1.0.0'
+main: io.Sriptirc_wp_1258.seasonalplugin.SeasonalPlugin
+api-version: '1.21'
+authors: ['wp:1258']
+description: '四季插件 - 季节影响天气、农作物生长、钓鱼收益，冬季冻伤机制'
+commands:
+    season:
+        description: '查看当前季节和剩余时间'
+        aliases: ['s']
+    seasonadmin:
+        description: '管理员命令 - 设置季节、重载配置'
+        aliases: ['sa', 'seasonreload']
+permissions:
+    seasonalplugin.use:
+        description: '查看季节信息'
+        default: false
+    seasonalplugin.admin:
+        description: '管理季节、重载配置'
+        default: false

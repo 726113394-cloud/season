@@ -1,0 +1,94 @@
+# ============================================
+#  SeasonalPlugin 四季插件 - 配置文件
+#  ScriptIrc-config-version: 1
+#  修改后使用 /seasonadmin reload 重载
+# ============================================
+ScriptIrc-config-version: 1
+
+# ============================================
+#  季节更替设置
+# ============================================
+season-cycle:
+  # true = 现实时间, false = 游戏内天数
+  use-real-time: true
+  # 现实时间：每 N 天换季（仅 use-real-time: true 时生效）
+  real-time-days-per-season: 7
+  # 游戏天数：每 N 个 MC 天换季（仅 use-real-time: false 时生效）
+  mc-days-per-season: 30
+
+# ============================================
+#  天气控制
+#  每个季节的下雨概率和雷暴概率（0.0 ~ 1.0）
+# ============================================
+weather:
+  enabled: true
+  spring-rain-chance: 0.7
+  summer-rain-chance: 0.15
+  autumn-rain-chance: 0.5
+  winter-rain-chance: 0.4
+  spring-storm-chance: 0.3
+  summer-storm-chance: 0.05
+  autumn-storm-chance: 0.2
+  winter-storm-chance: 0.15
+
+# ============================================
+#  作物生长倍率
+#  数值越大生长越快（原版速度为 1.0）
+#  冬季建议调低，春季建议调高
+# ============================================
+crop-growth:
+  enabled: true
+  spring-multiplier: 1.5
+  summer-multiplier: 1.2
+  autumn-multiplier: 1.0
+  winter-multiplier: 0.3
+
+# ============================================
+#  秋季收获翻倍
+#  仅秋季生效
+# ============================================
+harvest-boost:
+  enabled: true
+  # 掉落物倍率（2.0 = 双倍掉落）
+  multiplier: 2.0
+
+# ============================================
+#  春/夏季钓鱼加成
+# ============================================
+fishing-boost:
+  enabled: true
+  # 鱼类掉落倍率
+  multiplier: 2.0
+  # 是否加快钓鱼速度
+  speed-boost: true
+  # 加快后的等待 tick（原版约 100-600 tick，越小越快）
+  speed-boost-ticks: 60
+
+# ============================================
+#  冬季冻伤机制
+#  玩家同时没穿靴子+没穿护腿时触发
+# ============================================
+freeze:
+  enabled: true
+  # 伤害间隔（tick，20 tick = 1 秒）
+  interval-ticks: 100
+  # 每次伤害数值（半心）
+  damage: 1.0
+  # 缓慢效果等级（0 = 缓慢 I）
+  slow-amplifier: 0
+  # 缓慢持续时间（tick）
+  slow-duration: 100
+
+# ============================================
+#  树叶季节粒子效果
+#  春=嫩绿粒子 夏=深绿粒子 秋=橙黄粒子 冬=雪花粒子
+# ============================================
+leaf-particles:
+  enabled: true
+
+# ============================================
+#  作物 Lore 显示
+#  在作物/种子物品上显示季节适配信息
+# ============================================
+lore:
+  enabled: true
