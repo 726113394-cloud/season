@@ -90,6 +90,7 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 1rem;
+            align-items: center;
         }
 
         .btn {
@@ -106,6 +107,7 @@
             color: #1e2a3e;
             border: 1px solid #dce3ec;
             box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            cursor: pointer;
         }
 
         .btn-primary {
@@ -138,6 +140,12 @@
             font-size: 0.8rem;
             background: #ffffff;
             border-color: #cbd5e1;
+        }
+
+        .lang-switch {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #1e293b;
         }
 
         .feature-grid {
@@ -378,54 +386,57 @@
     <!-- Hero 区域 -->
     <div class="hero">
         <div class="badge">
-            <i class="fas fa-leaf"></i> <span>for Minecraft 1.21.x · 鲜活四季</span>
+            <i class="fas fa-leaf"></i> <span data-i18n="badge">for Minecraft 1.21.x · 鲜活四季</span>
         </div>
         <h1>SeasonalPlugin</h1>
-        <div class="tagline">
+        <div class="tagline" data-i18n="tagline">
             🌸 春华 · ☀️ 夏茂 · 🍂 秋实 · ❄️ 冬藏 — 为世界注入生命的律动。<br>
             树叶变色 | 作物季节限制 | 春季开花 | 冬季冻伤 | 钓鱼加成
         </div>
         <div class="btn-group">
             <a href="https://modrinth.com/plugin/seasonalplugin" target="_blank" class="btn btn-primary">
-                <i class="fab fa-modrinth"></i> 从 Modrinth 下载
+                <i class="fab fa-modrinth"></i> <span data-i18n="download_btn">从 Modrinth 下载</span>
             </a>
             <a href="#features" class="btn btn-outline">
-                <i class="fas fa-seedling"></i> 探索四季功能
+                <i class="fas fa-seedling"></i> <span data-i18n="explore_btn">探索四季功能</span>
             </a>
+            <button id="langToggle" class="btn btn-outline btn-sm lang-switch">
+                <i class="fas fa-globe"></i> English
+            </button>
         </div>
     </div>
 
-    <!-- 核心功能特色网格 (常驻) -->
+    <!-- 核心功能特色网格 -->
     <div class="feature-grid" id="features">
         <div class="feature-item">
             <i class="fas fa-calendar-alt"></i>
-            <h3>四季更替</h3>
-            <p>春 → 夏 → 秋 → 冬 循环，支持现实时间或游戏天数切换，进度实时可见。</p>
+            <h3 data-i18n="feature1_title">四季更替</h3>
+            <p data-i18n="feature1_desc">春 → 夏 → 秋 → 冬 循环，支持现实时间或游戏天数切换，进度实时可见。</p>
         </div>
         <div class="feature-item">
             <i class="fas fa-cloud-rain"></i>
-            <h3>天气影响</h3>
-            <p>春季多雨，夏季晴朗，冬季通过切换群系实现唯美降雪，雷暴概率独立调节。</p>
+            <h3 data-i18n="feature2_title">天气影响</h3>
+            <p data-i18n="feature2_desc">春季多雨，夏季晴朗，冬季通过切换群系实现唯美降雪，雷暴概率独立调节。</p>
         </div>
         <div class="feature-item">
             <i class="fas fa-tree"></i>
-            <h3>树叶 & 草地变色</h3>
-            <p>春翠绿、夏原色、秋橙黄、冬银白，动态切换生物群系，沉浸感倍增。</p>
+            <h3 data-i18n="feature3_title">树叶 & 草地变色</h3>
+            <p data-i18n="feature3_desc">春翠绿、夏原色、秋橙黄、冬银白，动态切换生物群系，沉浸感倍增。</p>
         </div>
         <div class="feature-item">
             <i class="fas fa-seedling"></i>
-            <h3>作物季节限制</h3>
-            <p>每种作物只能在特定季节生长，不适宜的季节无法种植/成熟，增加真实策略。</p>
+            <h3 data-i18n="feature4_title">作物季节限制</h3>
+            <p data-i18n="feature4_desc">每种作物只能在特定季节生长，不适宜的季节无法种植/成熟，增加真实策略。</p>
         </div>
         <div class="feature-item">
             <i class="fas fa-snowflake"></i>
-            <h3>冬季冻伤系统</h3>
-            <p>户外未穿戴靴子和护腿的玩家缓慢掉血并获得缓慢效果，提升生存挑战。</p>
+            <h3 data-i18n="feature5_title">冬季冻伤系统</h3>
+            <p data-i18n="feature5_desc">户外未穿戴靴子和护腿的玩家缓慢掉血并获得缓慢效果，提升生存挑战。</p>
         </div>
         <div class="feature-item">
             <i class="fas fa-fish"></i>
-            <h3>春/夏钓鱼加成</h3>
-            <p>鱼类掉落翻倍，咬钩速度加快，秋季收获翻倍，完美配合季节特性。</p>
+            <h3 data-i18n="feature6_title">春/夏钓鱼加成</h3>
+            <p data-i18n="feature6_desc">鱼类掉落翻倍，咬钩速度加快，秋季收获翻倍，完美配合季节特性。</p>
         </div>
     </div>
 
@@ -433,24 +444,24 @@
     <div class="card">
         <div class="card-header">
             <i class="fas fa-sync-alt"></i>
-            <h2>季节循环机制</h2>
+            <h2 data-i18n="cycle_title">季节循环机制</h2>
         </div>
         <div class="card-summary">
-            <i class="fas fa-clock"></i> 现实时间或游戏天数 — 全自动循环，管理员可随时手动调整。
+            <i class="fas fa-clock"></i> <span data-i18n="cycle_summary">现实时间或游戏天数 — 全自动循环，管理员可随时手动调整。</span>
         </div>
         <div class="details-wrapper">
             <details>
-                <summary>查看详细机制 & 配置选项</summary>
+                <summary><span data-i18n="cycle_details_btn">查看详细机制 & 配置选项</span></summary>
                 <div class="detail-content">
-                    <p><strong>换季方式</strong>：在 <span class="inline-code">config.yml</span> 中设置 <span class="inline-code">season-cycle.use-real-time</span>。<br>
+                    <p data-i18n="cycle_text1"><strong>换季方式</strong>：在 <span class="inline-code">config.yml</span> 中设置 <span class="inline-code">season-cycle.use-real-time</span>。<br>
                     ✔️ <span class="inline-code">true</span> — 基于现实天数（默认每个季节持续3天）<br>
                     ✔️ <span class="inline-code">false</span> — 基于游戏内天数，每个季节持续指定 Minecraft 日。</p>
-                    <p><strong>季节影响一览</strong>：</p>
+                    <p data-i18n="cycle_text2"><strong>季节影响一览</strong>：</p>
                     <ul style="margin-left: 1.2rem;">
-                        <li>🌱 <strong>春季</strong>：开花系统开启，橡树变樱花树；作物生长加速，多雨。</li>
-                        <li>☀️ <strong>夏季</strong>：钓鱼速度加快，鱼类掉落翻倍，雷暴概率降低。</li>
-                        <li>🍂 <strong>秋季</strong>：农作物收获翻倍，树叶转为橙黄色，凉爽宜人。</li>
-                        <li>❄️ <strong>冬季</strong>：生物群系转为雪地类，户外冻伤，西瓜/南瓜唯一生长季。</li>
+                        <li data-i18n="cycle_spring">🌱 <strong>春季</strong>：开花系统开启，橡树变樱花树；作物生长加速，多雨。</li>
+                        <li data-i18n="cycle_summer">☀️ <strong>夏季</strong>：钓鱼速度加快，鱼类掉落翻倍，雷暴概率降低。</li>
+                        <li data-i18n="cycle_autumn">🍂 <strong>秋季</strong>：农作物收获翻倍，树叶转为橙黄色，凉爽宜人。</li>
+                        <li data-i18n="cycle_winter">❄️ <strong>冬季</strong>：生物群系转为雪地类，户外冻伤，西瓜/南瓜唯一生长季。</li>
                     </ul>
                     <div class="code-block">
                         <pre># config.yml 换季相关示例
@@ -468,21 +479,21 @@ season-cycle:
     <div class="card">
         <div class="card-header">
             <i class="fas fa-cherry-blossom"></i>
-            <h2>春季开花 · 唯美特效</h2>
+            <h2 data-i18n="blossom_title">春季开花 · 唯美特效</h2>
         </div>
         <div class="card-summary">
-            <i class="fas fa-flower"></i> 春季中期橡树变为樱花树，花瓣纷飞，可强制花期延长。
+            <i class="fas fa-flower"></i> <span data-i18n="blossom_summary">春季中期橡树变为樱花树，花瓣纷飞，可强制花期延长。</span>
         </div>
         <div class="details-wrapper">
             <details>
-                <summary>展开开花机制与命令</summary>
+                <summary><span data-i18n="blossom_details_btn">展开开花机制与命令</span></summary>
                 <div class="detail-content">
-                    <p>春季的第34%~66%阶段，世界中所有橡树会自动转变为樱花树，破坏后掉落橡树树叶，保持原版生存平衡。管理员可使用命令手动控制花期：</p>
+                    <p data-i18n="blossom_text">春季的第34%~66%阶段，世界中所有橡树会自动转变为樱花树，破坏后掉落橡树树叶，保持原版生存平衡。管理员可使用命令手动控制花期：</p>
                     <div class="code-block">
                         <pre>/seasonadmin blossom      # 立即进入开花状态（仅春季可用）
 /seasonadmin blossom off   # 强制结束花期，樱花树变回橡树</pre>
                     </div>
-                    <p>🌸 开花期间樱花树会飘落粉色粒子，营造梦幻氛围，夏季将自动恢复原状。</p>
+                    <p data-i18n="blossom_note">🌸 开花期间樱花树会飘落粉色粒子，营造梦幻氛围，夏季将自动恢复原状。</p>
                 </div>
             </details>
         </div>
@@ -492,32 +503,32 @@ season-cycle:
     <div class="card">
         <div class="card-header">
             <i class="fas fa-carrot"></i>
-            <h2>作物季节适配表</h2>
+            <h2 data-i18n="crop_table_title">作物季节适配表</h2>
         </div>
         <div class="card-summary">
-            <i class="fas fa-table-list"></i> 每个作物拥有独立的四季适配规则，不适宜的季节无法生长。
+            <i class="fas fa-table-list"></i> <span data-i18n="crop_table_summary">每个作物拥有独立的四季适配规则，不适宜的季节无法生长。</span>
         </div>
         <div class="details-wrapper">
             <details>
-                <summary>查看默认作物季节表 (可配置)</summary>
+                <summary><span data-i18n="crop_table_details_btn">查看默认作物季节表 (可配置)</span></summary>
                 <div class="detail-content">
                     <table class="crop-table">
-                        <thead><tr><th>作物</th><th>春</th><th>夏</th><th>秋</th><th>冬</th></tr></thead>
+                        <thead><tr><th data-i18n="crop_col">作物</th><th data-i18n="spring_col">春</th><th data-i18n="summer_col">夏</th><th data-i18n="autumn_col">秋</th><th data-i18n="winter_col">冬</th></tr></thead>
                         <tbody>
-                            <tr><td>小麦</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
-                            <tr><td>胡萝卜</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
-                            <tr><td>土豆</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td></tr>
-                            <tr><td>甜菜根</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td></tr>
-                            <tr><td>可可豆</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
-                            <tr><td>浆果</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
-                            <tr><td>西瓜/南瓜</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
-                            <tr><td>火把花</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
-                            <tr><td>瓶子草</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
-                            <tr><td>下界疣/蘑菇</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                            <tr><td data-i18n="crop_wheat">小麦</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+                            <tr><td data-i18n="crop_carrot">胡萝卜</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+                            <tr><td data-i18n="crop_potato">土豆</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                            <tr><td data-i18n="crop_beetroot">甜菜根</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                            <tr><td data-i18n="crop_cocoa">可可豆</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
+                            <tr><td data-i18n="crop_berries">浆果</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+                            <tr><td data-i18n="crop_melon">西瓜/南瓜</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                            <tr><td data-i18n="crop_torchflower">火把花</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+                            <tr><td data-i18n="crop_pitcher">瓶子草</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
+                            <tr><td data-i18n="crop_nether">下界疣/蘑菇</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
                         </tbody>
                     </table>
-                    <p><i class="fas fa-info-circle"></i> 使用 <span class="inline-code">/season crops</span> 命令可随时查看当前季节适宜的作物列表，种子/作物物品Lore上也会显示四季适配表，当前季节高亮显示。</p>
-                    <p>⚡ <strong>生长速度倍率</strong>：春季所有作物加速生长（默认1.5倍），冬季几乎停滞（0.2倍），其他季节正常。所有数值可在配置中调整。</p>
+                    <p data-i18n="crop_table_note"><i class="fas fa-info-circle"></i> 使用 <span class="inline-code">/season crops</span> 命令可随时查看当前季节适宜的作物列表，种子/作物物品Lore上也会显示四季适配表，当前季节高亮显示。</p>
+                    <p data-i18n="crop_growth_note">⚡ <strong>生长速度倍率</strong>：春季所有作物加速生长（默认1.5倍），冬季几乎停滞（0.2倍），其他季节正常。所有数值可在配置中调整。</p>
                 </div>
             </details>
         </div>
@@ -527,28 +538,28 @@ season-cycle:
     <div class="card">
         <div class="card-header">
             <i class="fas fa-terminal"></i>
-            <h2>命令与权限</h2>
+            <h2 data-i18n="commands_title">命令与权限</h2>
         </div>
         <div class="card-summary">
-            <i class="fas fa-crown"></i> 玩家指令、管理员指令，完全自定义季节控制。
+            <i class="fas fa-crown"></i> <span data-i18n="commands_summary">玩家指令、管理员指令，完全自定义季节控制。</span>
         </div>
         <div class="details-wrapper">
             <details>
-                <summary>展开完整命令列表</summary>
+                <summary><span data-i18n="commands_details_btn">展开完整命令列表</span></summary>
                 <div class="detail-content">
                     <table>
-                        <thead><tr><th>命令</th><th>权限</th><th>说明</th></tr></thead>
+                        <thead><tr><th data-i18n="command_col">命令</th><th data-i18n="permission_col">权限</th><th data-i18n="description_col">说明</th></tr></thead>
                         <tbody>
-                            <tr><td><span class="inline-code">/season</span> 或 <span class="inline-code">/s</span></td><td><span class="inline-code">seasonalplugin.use</span></td><td>查看当前季节详细报告（进度、推荐作物、小贴士）</td></tr>
-                            <tr><td><span class="inline-code">/season crops</span></td><td><span class="inline-code">seasonalplugin.use</span></td><td>查看所有作物的四季生长适配表</td></tr>
-                            <tr><td><span class="inline-code">/seasonadmin set &lt;季节&gt;</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td>手动设置季节 (spring/summer/autumn/winter)</td></tr>
-                            <tr><td><span class="inline-code">/seasonadmin reload</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td>重载配置文件</td></tr>
-                            <tr><td><span class="inline-code">/seasonadmin leafrefresh</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td>强制刷新树叶颜色与生物群系</td></tr>
-                            <tr><td><span class="inline-code">/seasonadmin blossom</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td>强制进入花期（仅春季可用）橡树→樱花</td></tr>
-                            <tr><td><span class="inline-code">/seasonadmin blossom off</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td>强制结束花期，樱花→橡树</td></tr>
+                            <tr><td><span class="inline-code">/season</span> 或 <span class="inline-code">/s</span></td><td><span class="inline-code">seasonalplugin.use</span></td><td data-i18n="cmd_season">查看当前季节详细报告（进度、推荐作物、小贴士）</td></tr>
+                            <tr><td><span class="inline-code">/season crops</span></td><td><span class="inline-code">seasonalplugin.use</span></td><td data-i18n="cmd_crops">查看所有作物的四季生长适配表</td></tr>
+                            <tr><td><span class="inline-code">/seasonadmin set &lt;季节&gt;</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td data-i18n="cmd_set">手动设置季节 (spring/summer/autumn/winter)</td></tr>
+                            <tr><td><span class="inline-code">/seasonadmin reload</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td data-i18n="cmd_reload">重载配置文件</td></tr>
+                            <tr><td><span class="inline-code">/seasonadmin leafrefresh</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td data-i18n="cmd_leafrefresh">强制刷新树叶颜色与生物群系</td></tr>
+                            <tr><td><span class="inline-code">/seasonadmin blossom</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td data-i18n="cmd_blossom">强制进入花期（仅春季可用）橡树→樱花</td></tr>
+                            <tr><td><span class="inline-code">/seasonadmin blossom off</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td data-i18n="cmd_blossom_off">强制结束花期，樱花→橡树</td></tr>
                         </tbody>
                     </table>
-                    <p><i class="fas fa-user-tag"></i> 管理员还可通过 <span class="inline-code">/seasonadmin set</span> 任意跳转季节，方便测试与活动。</p>
+                    <p data-i18n="cmd_note"><i class="fas fa-user-tag"></i> 管理员还可通过 <span class="inline-code">/seasonadmin set</span> 任意跳转季节，方便测试与活动。</p>
                 </div>
             </details>
         </div>
@@ -558,32 +569,32 @@ season-cycle:
     <div class="card">
         <div class="card-header">
             <i class="fas fa-sliders-h"></i>
-            <h2>核心配置 & 机制微调</h2>
+            <h2 data-i18n="config_title">核心配置 & 机制微调</h2>
         </div>
         <div class="card-summary">
-            <i class="fas fa-wrench"></i> 所有数值均可自定义，从天气概率到冻伤伤害，完全掌控。
+            <i class="fas fa-wrench"></i> <span data-i18n="config_summary">所有数值均可自定义，从天气概率到冻伤伤害，完全掌控。</span>
         </div>
         <div class="details-wrapper">
             <details>
-                <summary>展开主要配置项说明</summary>
+                <summary><span data-i18n="config_details_btn">展开主要配置项说明</span></summary>
                 <div class="detail-content">
                     <ul style="margin-left: 1.2rem;">
-                        <li><span class="inline-code">weather.spring-rain-chance</span> — 春季下雨概率 (默认0.6)</li>
-                        <li><span class="inline-code">weather.summer-thunder-chance</span> — 夏季雷暴概率 (默认0.05)</li>
-                        <li><span class="inline-code">crop-growth.spring-multiplier</span> — 春季作物生长速度倍率</li>
-                        <li><span class="inline-code">harvest-boost.multiplier</span> — 秋季收获掉落倍率 (默认2.0)</li>
-                        <li><span class="inline-code">fishing-boost.spring-summer-multiplier</span> — 春/夏钓鱼掉落倍数 (1.5)</li>
-                        <li><span class="inline-code">freeze.damage-interval-ticks</span> — 冬季冻伤伤害间隔</li>
-                        <li><span class="inline-code">leaf-particles.enabled</span> — 树叶季节颜色开关</li>
+                        <li><span class="inline-code">weather.spring-rain-chance</span> — <span data-i18n="config_rain">春季下雨概率 (默认0.6)</span></li>
+                        <li><span class="inline-code">weather.summer-thunder-chance</span> — <span data-i18n="config_thunder">夏季雷暴概率 (默认0.05)</span></li>
+                        <li><span class="inline-code">crop-growth.spring-multiplier</span> — <span data-i18n="config_growth">春季作物生长速度倍率</span></li>
+                        <li><span class="inline-code">harvest-boost.multiplier</span> — <span data-i18n="config_harvest">秋季收获掉落倍率 (默认2.0)</span></li>
+                        <li><span class="inline-code">fishing-boost.spring-summer-multiplier</span> — <span data-i18n="config_fishing">春/夏钓鱼掉落倍数 (1.5)</span></li>
+                        <li><span class="inline-code">freeze.damage-interval-ticks</span> — <span data-i18n="config_freeze">冬季冻伤伤害间隔</span></li>
+                        <li><span class="inline-code">leaf-particles.enabled</span> — <span data-i18n="config_leaves">树叶季节颜色开关</span></li>
                     </ul>
-                    <p>完整配置文件位于 <span class="inline-code">plugins/SeasonalPlugin/config.yml</span>，修改后执行 <span class="inline-code">/seasonadmin reload</span> 即时生效。</p>
+                    <p data-i18n="config_path">完整配置文件位于 <span class="inline-code">plugins/SeasonalPlugin/config.yml</span>，修改后执行 <span class="inline-code">/seasonadmin reload</span> 即时生效。</p>
                     <div class="code-block">
                         <pre># 示例：调整冬季冻伤强度
 freeze:
   enabled: true
-  damage-amount: 1.0         # 每次伤害数值
-  damage-interval-ticks: 80   # 每4秒检测一次
-  slow-amplifier: 1          # 缓慢效果等级</pre>
+  damage-amount: 1.0
+  damage-interval-ticks: 80
+  slow-amplifier: 1</pre>
                     </div>
                 </div>
             </details>
@@ -594,22 +605,22 @@ freeze:
     <div class="card">
         <div class="card-header">
             <i class="fas fa-comment-dots"></i>
-            <h2>每日提示 & 沉浸辅助</h2>
+            <h2 data-i18n="tips_title">每日提示 & 沉浸辅助</h2>
         </div>
         <div class="card-summary">
-            <i class="fas fa-sun"></i> 玩家上线或天亮时自动推送季节情报与种植建议。
+            <i class="fas fa-sun"></i> <span data-i18n="tips_summary">玩家上线或天亮时自动推送季节情报与种植建议。</span>
         </div>
         <div class="details-wrapper">
             <details>
-                <summary>展开提示机制介绍</summary>
+                <summary><span data-i18n="tips_details_btn">展开提示机制介绍</span></summary>
                 <div class="detail-content">
-                    <p>每日清晨或玩家首次进入服务器时，会收到一条精美的季节报告，包含：</p>
+                    <p data-i18n="tips_text">每日清晨或玩家首次进入服务器时，会收到一条精美的季节报告，包含：</p>
                     <ul>
-                        <li>🌿 当前季节与剩余天数进度条</li>
-                        <li>🌾 最适合种植的三种作物</li>
-                        <li>💡 季节特性小贴士（如“春季橡树会开花”、“冬天记得穿靴子” ）</li>
+                        <li data-i18n="tips_item1">🌿 当前季节与剩余天数进度条</li>
+                        <li data-i18n="tips_item2">🌾 最适合种植的三种作物</li>
+                        <li data-i18n="tips_item3">💡 季节特性小贴士（如“春季橡树会开花”、“冬天记得穿靴子” ）</li>
                     </ul>
-                    <p>该功能完全可配置，支持关闭或调整提示频率。同时，所有作物种子/物品上均会显示适配表格，鼠标悬浮即可查看各季节生长状态，当前季节高亮突出。</p>
+                    <p data-i18n="tips_note">该功能完全可配置，支持关闭或调整提示频率。同时，所有作物种子/物品上均会显示适配表格，鼠标悬浮即可查看各季节生长状态，当前季节高亮突出。</p>
                 </div>
             </details>
         </div>
@@ -619,24 +630,24 @@ freeze:
     <div class="card">
         <div class="card-header">
             <i class="fas fa-cube"></i>
-            <h2>使用方式 & 编译</h2>
+            <h2 data-i18n="usage_title">使用方式 & 编译</h2>
         </div>
         <div class="card-summary">
-            <i class="fas fa-terminal"></i> 基于 ScriptIrc 运行，快速部署。
+            <i class="fas fa-terminal"></i> <span data-i18n="usage_summary">基于 ScriptIrc 运行，快速部署。</span>
         </div>
         <div class="details-wrapper">
             <details>
-                <summary>查看详细部署步骤</summary>
+                <summary><span data-i18n="usage_details_btn">查看详细部署步骤</span></summary>
                 <div class="detail-content">
-                    <p>1️⃣ 将项目导出为 <span class="inline-code">.sirc</span> 文件。<br>
+                    <p data-i18n="usage_step1">1️⃣ 将项目导出为 <span class="inline-code">.sirc</span> 文件。<br>
                     2️⃣ 放入服务端目录 <span class="inline-code">plugins/ScriptIrc/scripts/src/</span>。<br>
                     3️⃣ 执行命令 <span class="inline-code">/scriptirc compiler SeasonalPlugin</span> 编译。<br>
                     4️⃣ 编译成功后重启服务器或执行 <span class="inline-code">/reload confirm</span> 载入插件。</p>
-                    <p>✅ 无需任何外部依赖，兼容 Paper 1.21.x 及后续版本，插件会在启动时自动注册季节监听器。</p>
+                    <p data-i18n="usage_note">✅ 无需任何外部依赖，兼容 Paper 1.21.x 及后续版本，插件会在启动时自动注册季节监听器。</p>
                     <div class="code-block">
                         <pre># 管理员命令示例
-/seasonadmin set autumn      # 直接切换至秋季
-/seasonadmin leafrefresh     # 强制刷新树叶颜色</pre>
+/seasonadmin set autumn
+/seasonadmin leafrefresh</pre>
                     </div>
                 </div>
             </details>
@@ -646,46 +657,130 @@ freeze:
     <!-- 页脚 -->
     <div class="footer">
         <div>
-            <i class="fab fa-modrinth"></i> 官方下载：<a href="https://modrinth.com/plugin/seasonalplugin" target="_blank">https://modrinth.com/plugin/seasonalplugin</a>
+            <i class="fab fa-modrinth"></i> <span data-i18n="footer_download">官方下载</span>：<a href="https://modrinth.com/plugin/seasonalplugin" target="_blank">https://modrinth.com/plugin/seasonalplugin</a>
         </div>
         <div>
-            <i class="fas fa-code-branch"></i> 兼容 Minecraft 1.21+ (Paper / Spigot) 
-            &nbsp;|&nbsp; <i class="fas fa-balance-scale"></i> 开源项目，自由扩展
+            <i class="fas fa-code-branch"></i> <span data-i18n="footer_compat">兼容 Minecraft 1.21+ (Paper / Spigot)</span> 
+            &nbsp;|&nbsp; <i class="fas fa-balance-scale"></i> <span data-i18n="footer_open">开源项目，自由扩展</span>
         </div>
         <div>
-            设计：<i class="fas fa-leaf"></i> SeasonalPlugin 开发组 · 为原版生存注入四季灵魂
+            <span data-i18n="footer_author">作者</span>：<a href="https://726113394-cloud.github.io/PersonalPage/" target="_blank"><i class="fas fa-user-astronaut"></i> @来自太空的小头脑</a>
         </div>
         <div style="font-size: 0.8rem;">
-            <i class="fas fa-magic"></i> 树叶变色 | 作物季节限制 | 春季开花 | 冬季冻伤 | 钓鱼加成
+            <i class="fas fa-magic"></i> <span data-i18n="footer_tags">树叶变色 | 作物季节限制 | 春季开花 | 冬季冻伤 | 钓鱼加成</span>
         </div>
     </div>
 </div>
 
 <script>
-    // 为页面添加“展开所有详情”按钮（方便用户）
-    (function() {
-        const btnGroup = document.querySelector('.btn-group');
-        if (btnGroup && !document.getElementById('globalExpandBtn')) {
-            const expandBtn = document.createElement('a');
-            expandBtn.href = '#';
-            expandBtn.id = 'globalExpandBtn';
-            expandBtn.className = 'btn btn-outline btn-sm';
-            expandBtn.innerHTML = '<i class="fas fa-expand-alt"></i> 展开所有详情';
-            expandBtn.style.marginLeft = '0.5rem';
-            let expanded = false;
-            expandBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const allDetails = document.querySelectorAll('.details-wrapper details');
-                allDetails.forEach(detail => {
-                    if (expanded) detail.removeAttribute('open');
-                    else detail.setAttribute('open', 'true');
-                });
-                expanded = !expanded;
-                expandBtn.innerHTML = expanded ? '<i class="fas fa-compress-alt"></i> 折叠所有详情' : '<i class="fas fa-expand-alt"></i> 展开所有详情';
-            });
-            btnGroup.appendChild(expandBtn);
+    // 多语言资源
+    const translations = {
+        zh: {
+            badge: "for Minecraft 1.21.x · 鲜活四季",
+            tagline: "🌸 春华 · ☀️ 夏茂 · 🍂 秋实 · ❄️ 冬藏 — 为世界注入生命的律动。<br>树叶变色 | 作物季节限制 | 春季开花 | 冬季冻伤 | 钓鱼加成",
+            download_btn: "从 Modrinth 下载",
+            explore_btn: "探索四季功能",
+            feature1_title: "四季更替", feature1_desc: "春 → 夏 → 秋 → 冬 循环，支持现实时间或游戏天数切换，进度实时可见。",
+            feature2_title: "天气影响", feature2_desc: "春季多雨，夏季晴朗，冬季通过切换群系实现唯美降雪，雷暴概率独立调节。",
+            feature3_title: "树叶 & 草地变色", feature3_desc: "春翠绿、夏原色、秋橙黄、冬银白，动态切换生物群系，沉浸感倍增。",
+            feature4_title: "作物季节限制", feature4_desc: "每种作物只能在特定季节生长，不适宜的季节无法种植/成熟，增加真实策略。",
+            feature5_title: "冬季冻伤系统", feature5_desc: "户外未穿戴靴子和护腿的玩家缓慢掉血并获得缓慢效果，提升生存挑战。",
+            feature6_title: "春/夏钓鱼加成", feature6_desc: "鱼类掉落翻倍，咬钩速度加快，秋季收获翻倍，完美配合季节特性。",
+            cycle_title: "季节循环机制", cycle_summary: "现实时间或游戏天数 — 全自动循环，管理员可随时手动调整。", cycle_details_btn: "查看详细机制 & 配置选项",
+            cycle_text1: "<strong>换季方式</strong>：在 <span class='inline-code'>config.yml</span> 中设置 <span class='inline-code'>season-cycle.use-real-time</span>。<br>✔️ <span class='inline-code'>true</span> — 基于现实天数（默认每个季节持续3天）<br>✔️ <span class='inline-code'>false</span> — 基于游戏内天数，每个季节持续指定 Minecraft 日。",
+            cycle_text2: "<strong>季节影响一览</strong>：",
+            cycle_spring: "🌱 <strong>春季</strong>：开花系统开启，橡树变樱花树；作物生长加速，多雨。",
+            cycle_summer: "☀️ <strong>夏季</strong>：钓鱼速度加快，鱼类掉落翻倍，雷暴概率降低。",
+            cycle_autumn: "🍂 <strong>秋季</strong>：农作物收获翻倍，树叶转为橙黄色，凉爽宜人。",
+            cycle_winter: "❄️ <strong>冬季</strong>：生物群系转为雪地类，户外冻伤，西瓜/南瓜唯一生长季。",
+            blossom_title: "春季开花 · 唯美特效", blossom_summary: "春季中期橡树变为樱花树，花瓣纷飞，可强制花期延长。", blossom_details_btn: "展开开花机制与命令",
+            blossom_text: "春季的第34%~66%阶段，世界中所有橡树会自动转变为樱花树，破坏后掉落橡树树叶，保持原版生存平衡。管理员可使用命令手动控制花期：",
+            blossom_note: "🌸 开花期间樱花树会飘落粉色粒子，营造梦幻氛围，夏季将自动恢复原状。",
+            crop_table_title: "作物季节适配表", crop_table_summary: "每个作物拥有独立的四季适配规则，不适宜的季节无法生长。", crop_table_details_btn: "查看默认作物季节表 (可配置)",
+            crop_col: "作物", spring_col: "春", summer_col: "夏", autumn_col: "秋", winter_col: "冬",
+            crop_wheat: "小麦", crop_carrot: "胡萝卜", crop_potato: "土豆", crop_beetroot: "甜菜根", crop_cocoa: "可可豆", crop_berries: "浆果", crop_melon: "西瓜/南瓜", crop_torchflower: "火把花", crop_pitcher: "瓶子草", crop_nether: "下界疣/蘑菇",
+            crop_table_note: "<i class='fas fa-info-circle'></i> 使用 <span class='inline-code'>/season crops</span> 命令可随时查看当前季节适宜的作物列表，种子/作物物品Lore上也会显示四季适配表，当前季节高亮显示。",
+            crop_growth_note: "⚡ <strong>生长速度倍率</strong>：春季所有作物加速生长（默认1.5倍），冬季几乎停滞（0.2倍），其他季节正常。所有数值可在配置中调整。",
+            commands_title: "命令与权限", commands_summary: "玩家指令、管理员指令，完全自定义季节控制。", commands_details_btn: "展开完整命令列表",
+            command_col: "命令", permission_col: "权限", description_col: "说明",
+            cmd_season: "查看当前季节详细报告（进度、推荐作物、小贴士）", cmd_crops: "查看所有作物的四季生长适配表", cmd_set: "手动设置季节 (spring/summer/autumn/winter)", cmd_reload: "重载配置文件", cmd_leafrefresh: "强制刷新树叶颜色与生物群系", cmd_blossom: "强制进入花期（仅春季可用）橡树→樱花", cmd_blossom_off: "强制结束花期，樱花→橡树", cmd_note: "<i class='fas fa-user-tag'></i> 管理员还可通过 <span class='inline-code'>/seasonadmin set</span> 任意跳转季节，方便测试与活动。",
+            config_title: "核心配置 & 机制微调", config_summary: "所有数值均可自定义，从天气概率到冻伤伤害，完全掌控。", config_details_btn: "展开主要配置项说明",
+            config_rain: "春季下雨概率 (默认0.6)", config_thunder: "夏季雷暴概率 (默认0.05)", config_growth: "春季作物生长速度倍率", config_harvest: "秋季收获掉落倍率 (默认2.0)", config_fishing: "春/夏钓鱼掉落倍数 (1.5)", config_freeze: "冬季冻伤伤害间隔", config_leaves: "树叶季节颜色开关", config_path: "完整配置文件位于 <span class='inline-code'>plugins/SeasonalPlugin/config.yml</span>，修改后执行 <span class='inline-code'>/seasonadmin reload</span> 即时生效。",
+            tips_title: "每日提示 & 沉浸辅助", tips_summary: "玩家上线或天亮时自动推送季节情报与种植建议。", tips_details_btn: "展开提示机制介绍",
+            tips_text: "每日清晨或玩家首次进入服务器时，会收到一条精美的季节报告，包含：", tips_item1: "🌿 当前季节与剩余天数进度条", tips_item2: "🌾 最适合种植的三种作物", tips_item3: "💡 季节特性小贴士（如“春季橡树会开花”、“冬天记得穿靴子” ）", tips_note: "该功能完全可配置，支持关闭或调整提示频率。同时，所有作物种子/物品上均会显示适配表格，鼠标悬浮即可查看各季节生长状态，当前季节高亮突出。",
+            usage_title: "使用方式 & 编译", usage_summary: "基于 ScriptIrc 运行，快速部署。", usage_details_btn: "查看详细部署步骤",
+            usage_step1: "1️⃣ 将项目导出为 <span class='inline-code'>.sirc</span> 文件。<br>2️⃣ 放入服务端目录 <span class='inline-code'>plugins/ScriptIrc/scripts/src/</span>。<br>3️⃣ 执行命令 <span class='inline-code'>/scriptirc compiler SeasonalPlugin</span> 编译。<br>4️⃣ 编译成功后重启服务器或执行 <span class='inline-code'>/reload confirm</span> 载入插件。",
+            usage_note: "✅ 无需任何外部依赖，兼容 Paper 1.21.x 及后续版本，插件会在启动时自动注册季节监听器。",
+            footer_download: "官方下载", footer_compat: "兼容 Minecraft 1.21+ (Paper / Spigot)", footer_open: "开源项目，自由扩展", footer_author: "作者", footer_tags: "树叶变色 | 作物季节限制 | 春季开花 | 冬季冻伤 | 钓鱼加成"
+        },
+        en: {
+            badge: "for Minecraft 1.21.x · Vibrant Seasons",
+            tagline: "🌸 Spring · ☀️ Summer · 🍂 Autumn · ❄️ Winter — Bring life to your world.<br>Foliage Colors | Crop Restrictions | Spring Blossom | Frostbite | Fishing Boost",
+            download_btn: "Download from Modrinth",
+            explore_btn: "Explore Features",
+            feature1_title: "Season Cycle", feature1_desc: "Spring → Summer → Autumn → Winter loop. Supports real-time or Minecraft days. Progress visible.",
+            feature2_title: "Weather Effects", feature2_desc: "Rainy springs, clear summers, snowy winters via biome change. Customizable thunder chances.",
+            feature3_title: "Foliage & Grass Color", feature3_desc: "Dynamic biome changes: green spring, default summer, orange autumn, snowy winter.",
+            feature4_title: "Crop Season Restriction", feature4_desc: "Each crop grows only in specific seasons. Prevents planting or growing in unsuitable seasons.",
+            feature5_title: "Winter Frostbite", feature5_desc: "Players outdoors without boots/leggings take damage and get slowness.",
+            feature6_title: "Fishing Bonus", feature6_desc: "Double fish drops & faster bite rate in spring/summer. Double harvest in autumn.",
+            cycle_title: "Season Cycle", cycle_summary: "Real-time or in-game days — fully automatic, admins can override anytime.", cycle_details_btn: "View details & config options",
+            cycle_text1: "<strong>Season change mode</strong>: set <span class='inline-code'>season-cycle.use-real-time</span> in <span class='inline-code'>config.yml</span>.<br>✔️ <span class='inline-code'>true</span> — Real-time days (default 3 days per season)<br>✔️ <span class='inline-code'>false</span> — Minecraft days (custom length)",
+            cycle_text2: "<strong>Seasonal effects</strong>:",
+            cycle_spring: "🌱 <strong>Spring</strong>: Blossom mode active, oak → cherry; crop growth boosted, more rain.",
+            cycle_summer: "☀️ <strong>Summer</strong>: Faster fishing, double fish loot, lower thunder chance.",
+            cycle_autumn: "🍂 <strong>Autumn</strong>: Double crop harvest, orange foliage, cool weather.",
+            cycle_winter: "❄️ <strong>Winter</strong>: Snowy biomes, frostbite outdoors, melon/pumpkin only season.",
+            blossom_title: "Spring Blossom", blossom_summary: "Mid-spring oak trees turn into cherry trees with falling petals. Admins can force blossom mode.", blossom_details_btn: "Expand blossom mechanics & commands",
+            blossom_text: "During 34%~66% of spring, all oak trees become cherry trees. Breaking them drops oak leaves for vanilla balance. Admin commands:",
+            blossom_note: "🌸 Cherry trees emit pink particles. Mode resets automatically in summer.",
+            crop_table_title: "Crop Season Compatibility", crop_table_summary: "Each crop has its own seasonal rules. Unfavorable seasons block growth.", crop_table_details_btn: "View default crop table (configurable)",
+            crop_col: "Crop", spring_col: "Spr", summer_col: "Sum", autumn_col: "Aut", winter_col: "Win",
+            crop_wheat: "Wheat", crop_carrot: "Carrot", crop_potato: "Potato", crop_beetroot: "Beetroot", crop_cocoa: "Cocoa", crop_berries: "Berries", crop_melon: "Melon/Pumpkin", crop_torchflower: "Torchflower", crop_pitcher: "Pitcher Plant", crop_nether: "Nether Wart/Mushroom",
+            crop_table_note: "<i class='fas fa-info-circle'></i> Use <span class='inline-code'>/season crops</span> to see current season recommendations. Seed/Crop lore shows full table with current season highlighted.",
+            crop_growth_note: "⚡ <strong>Growth multiplier</strong>: Spring (1.5x), winter (0.2x), others normal. Fully customizable.",
+            commands_title: "Commands & Permissions", commands_summary: "Player and admin commands for full season control.", commands_details_btn: "Expand full command list",
+            command_col: "Command", permission_col: "Permission", description_col: "Description",
+            cmd_season: "View detailed season report (progress, recommended crops, tips)", cmd_crops: "View the crop season compatibility table", cmd_set: "Manually set season (spring/summer/autumn/winter)", cmd_reload: "Reload config file", cmd_leafrefresh: "Force refresh foliage color and biome", cmd_blossom: "Force blossom mode (spring only) oak→cherry", cmd_blossom_off: "Force end blossom mode, cherry→oak", cmd_note: "<i class='fas fa-user-tag'></i> Admins can jump to any season using <span class='inline-code'>/seasonadmin set</span>.",
+            config_title: "Configuration & Tuning", config_summary: "All values customizable: weather, growth, frostbite, fishing, etc.", config_details_btn: "Expand main config options",
+            config_rain: "Spring rain chance (default 0.6)", config_thunder: "Summer thunder chance (default 0.05)", config_growth: "Spring crop growth multiplier", config_harvest: "Autumn harvest multiplier (default 2.0)", config_fishing: "Spring/Summer fishing multiplier (1.5)", config_freeze: "Winter frostbite damage interval", config_leaves: "Enable seasonal leaf colors", config_path: "Full config at <span class='inline-code'>plugins/SeasonalPlugin/config.yml</span>. Use <span class='inline-code'>/seasonadmin reload</span> to apply changes.",
+            tips_title: "Daily Tips & Immersion", tips_summary: "Players receive seasonal reports on login or at sunrise.", tips_details_btn: "Expand tip system details",
+            tips_text: "Every morning or on first join, players receive a beautiful season report including:", tips_item1: "🌿 Current season & remaining days progress bar", tips_item2: "🌾 Best crops to plant", tips_item3: "💡 Seasonal tips (e.g. 'Oaks blossom in spring', 'Wear boots in winter')", tips_note: "Fully configurable. Crop items display the full season compatibility table on hover, with current season highlighted.",
+            usage_title: "Usage & Compilation", usage_summary: "Runs on ScriptIrc. Quick setup.", usage_details_btn: "View deployment steps",
+            usage_step1: "1️⃣ Export the project as a <span class='inline-code'>.sirc</span> file.<br>2️⃣ Place it in <span class='inline-code'>plugins/ScriptIrc/scripts/src/</span>.<br>3️⃣ Run <span class='inline-code'>/scriptirc compiler SeasonalPlugin</span>.<br>4️⃣ Restart server or <span class='inline-code'>/reload confirm</span> after successful compilation.",
+            usage_note: "✅ No external dependencies. Compatible with Paper 1.21.x+. Listener auto-registers on startup.",
+            footer_download: "Official download", footer_compat: "Compatible with Minecraft 1.21+ (Paper/Spigot)", footer_open: "Open source, freely extensible", footer_author: "Author", footer_tags: "Foliage Colors | Crop Restrictions | Spring Blossom | Frostbite | Fishing Boost"
         }
-    })();
+    };
+
+    let currentLang = 'zh';
+    const toggleBtn = document.getElementById('langToggle');
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang][key]) {
+                if (key === 'tagline' || key === 'cycle_text1' || key === 'cycle_text2' || key === 'blossom_text' || key === 'crop_table_note' || key === 'crop_growth_note' || key === 'cmd_note' || key === 'config_path' || key === 'tips_text' || key === 'usage_step1' || key === 'usage_note') {
+                    el.innerHTML = translations[lang][key];
+                } else {
+                    el.innerText = translations[lang][key];
+                }
+            }
+        });
+        // 更新按钮文字
+        toggleBtn.innerHTML = lang === 'zh' ? '<i class="fas fa-globe"></i> English' : '<i class="fas fa-globe"></i> 中文';
+        // 更新html lang属性
+        document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        const newLang = currentLang === 'zh' ? 'en' : 'zh';
+        setLanguage(newLang);
+    });
+
+    // 初始化中文
+    setLanguage('zh');
 </script>
 </body>
 </html>
