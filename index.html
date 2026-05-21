@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SeasonalPlugin · 四季插件 | 为 Minecraft 注入鲜活的季节变换</title>
+    <meta name="description" content="SeasonalPlugin 为 Minecraft 1.21.x 带来真实的四季循环：气温变化、树叶颜色、作物季节限制、钓鱼加成、冬季冻伤，以及唯美的春季开花系统。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f7fc;
+            color: #1e2a3e;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+        }
+
+        .bg-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background: radial-gradient(circle at 20% 30%, rgba(74, 222, 128, 0.12), transparent 70%);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .badge {
+            background: rgba(34, 197, 94, 0.12);
+            backdrop-filter: blur(2px);
+            padding: 0.25rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #15803d;
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #14532d, #16a34a, #65a30d);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .hero .tagline {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            max-width: 720px;
+            margin-bottom: 2rem;
+            background: rgba(255,255,240,0.6);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.75rem 1.8rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            background: #ffffff;
+            color: #1e2a3e;
+            border: 1px solid #dce3ec;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .btn-primary {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            color: #15803d;
+            box-shadow: 0 2px 6px rgba(34, 197, 94, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: #dcfce7;
+            border-color: #4ade80;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(34, 197, 94, 0.15);
+        }
+
+        .btn-outline {
+            background: #ffffff;
+            border-color: #cbd5e1;
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+            background: #ffffff;
+            border-color: #cbd5e1;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .feature-item {
+            background: #ffffff;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid #e9edf2;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s;
+        }
+
+        .feature-item:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .feature-item i {
+            font-size: 2rem;
+            color: #16a34a;
+            margin-bottom: 1rem;
+        }
+
+        .feature-item h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .feature-item p {
+            color: #334155;
+            font-size: 0.9rem;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #eef2f6;
+            border-radius: 1.8rem;
+            margin-bottom: 1.8rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            transition: box-shadow 0.2s;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.5rem 1.8rem 0.5rem 1.8rem;
+        }
+
+        .card-header i {
+            font-size: 1.8rem;
+            color: #2b9348;
+        }
+
+        .card-header h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: #0f172a;
+        }
+
+        .card-summary {
+            padding: 0 1.8rem 0.8rem 1.8rem;
+            color: #475569;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #ecf3f9;
+        }
+
+        .details-wrapper {
+            padding: 0 1.8rem 1.5rem 1.8rem;
+        }
+
+        details {
+            background: transparent;
+            border-radius: 1.2rem;
+            margin-top: 0;
+        }
+
+        details summary {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #2b6e3c;
+            background: rgba(34, 197, 94, 0.08);
+            padding: 0.6rem 1rem;
+            border-radius: 60px;
+            list-style: none;
+            width: fit-content;
+            transition: all 0.2s;
+            user-select: none;
+            font-size: 0.85rem;
+            border: 1px solid rgba(34, 197, 94, 0.25);
+        }
+
+        details summary:hover {
+            background: rgba(34, 197, 94, 0.15);
+            border-color: #4ade80;
+            color: #14532d;
+        }
+
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details summary::before {
+            content: "▶";
+            font-size: 0.75rem;
+            transition: transform 0.2s;
+            display: inline-block;
+            margin-right: 0.25rem;
+        }
+
+        details[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .detail-content {
+            margin-top: 1.2rem;
+            padding: 0.2rem 0 0.5rem 0;
+            border-top: 1px solid #ecf3f9;
+            color: #1e293b;
+        }
+
+        .code-block {
+            background: #f8fafc;
+            padding: 1rem 1.2rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+            margin: 1rem 0;
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #1e293b;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .inline-code {
+            background: #eef2ff;
+            padding: 0.2rem 0.4rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-family: monospace;
+            color: #0f3b2c;
+            font-weight: 500;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.2rem 0;
+            background: #ffffff;
+            border-radius: 1rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.6rem 0.4rem;
+            border-bottom: 1px solid #e9edf2;
+        }
+
+        th {
+            font-weight: 600;
+            color: #334155;
+            font-size: 0.85rem;
+        }
+
+        td {
+            color: #1e293b;
+        }
+
+        hr {
+            border-color: #e2e8f0;
+            margin: 1rem 0;
+        }
+
+        .footer {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 2rem;
+            margin-top: 2.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            color: #5b6e8c;
+        }
+
+        .footer a {
+            color: #2b6e3c;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 780px) {
+            .container {
+                padding: 1.2rem;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .card-header h2 {
+                font-size: 1.3rem;
+            }
+            .card-header {
+                padding: 1.2rem 1.2rem 0.2rem 1.2rem;
+            }
+            .card-summary {
+                padding: 0 1.2rem 0.8rem 1.2rem;
+            }
+            .details-wrapper {
+                padding: 0 1.2rem 1.2rem 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="container">
+    <!-- Hero 区域 -->
+    <div class="hero">
+        <div class="badge">
+            <i class="fas fa-leaf"></i> <span>for Minecraft 1.21.x · 鲜活四季</span>
+        </div>
+        <h1>SeasonalPlugin</h1>
+        <div class="tagline">
+            🌸 春华 · ☀️ 夏茂 · 🍂 秋实 · ❄️ 冬藏 — 为世界注入生命的律动。<br>
+            树叶变色 | 作物季节限制 | 春季开花 | 冬季冻伤 | 钓鱼加成
+        </div>
+        <div class="btn-group">
+            <a href="https://modrinth.com/plugin/seasonalplugin" target="_blank" class="btn btn-primary">
+                <i class="fab fa-modrinth"></i> 从 Modrinth 下载
+            </a>
+            <a href="#features" class="btn btn-outline">
+                <i class="fas fa-seedling"></i> 探索四季功能
+            </a>
+        </div>
+    </div>
+
+    <!-- 核心功能特色网格 (常驻) -->
+    <div class="feature-grid" id="features">
+        <div class="feature-item">
+            <i class="fas fa-calendar-alt"></i>
+            <h3>四季更替</h3>
+            <p>春 → 夏 → 秋 → 冬 循环，支持现实时间或游戏天数切换，进度实时可见。</p>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-cloud-rain"></i>
+            <h3>天气影响</h3>
+            <p>春季多雨，夏季晴朗，冬季通过切换群系实现唯美降雪，雷暴概率独立调节。</p>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-tree"></i>
+            <h3>树叶 & 草地变色</h3>
+            <p>春翠绿、夏原色、秋橙黄、冬银白，动态切换生物群系，沉浸感倍增。</p>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-seedling"></i>
+            <h3>作物季节限制</h3>
+            <p>每种作物只能在特定季节生长，不适宜的季节无法种植/成熟，增加真实策略。</p>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-snowflake"></i>
+            <h3>冬季冻伤系统</h3>
+            <p>户外未穿戴靴子和护腿的玩家缓慢掉血并获得缓慢效果，提升生存挑战。</p>
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-fish"></i>
+            <h3>春/夏钓鱼加成</h3>
+            <p>鱼类掉落翻倍，咬钩速度加快，秋季收获翻倍，完美配合季节特性。</p>
+        </div>
+    </div>
+
+    <!-- 1️⃣ 季节循环机制 -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-sync-alt"></i>
+            <h2>季节循环机制</h2>
+        </div>
+        <div class="card-summary">
+            <i class="fas fa-clock"></i> 现实时间或游戏天数 — 全自动循环，管理员可随时手动调整。
+        </div>
+        <div class="details-wrapper">
+            <details>
+                <summary>查看详细机制 & 配置选项</summary>
+                <div class="detail-content">
+                    <p><strong>换季方式</strong>：在 <span class="inline-code">config.yml</span> 中设置 <span class="inline-code">season-cycle.use-real-time</span>。<br>
+                    ✔️ <span class="inline-code">true</span> — 基于现实天数（默认每个季节持续3天）<br>
+                    ✔️ <span class="inline-code">false</span> — 基于游戏内天数，每个季节持续指定 Minecraft 日。</p>
+                    <p><strong>季节影响一览</strong>：</p>
+                    <ul style="margin-left: 1.2rem;">
+                        <li>🌱 <strong>春季</strong>：开花系统开启，橡树变樱花树；作物生长加速，多雨。</li>
+                        <li>☀️ <strong>夏季</strong>：钓鱼速度加快，鱼类掉落翻倍，雷暴概率降低。</li>
+                        <li>🍂 <strong>秋季</strong>：农作物收获翻倍，树叶转为橙黄色，凉爽宜人。</li>
+                        <li>❄️ <strong>冬季</strong>：生物群系转为雪地类，户外冻伤，西瓜/南瓜唯一生长季。</li>
+                    </ul>
+                    <div class="code-block">
+                        <pre># config.yml 换季相关示例
+season-cycle:
+  use-real-time: false       # 使用游戏天数
+  game-days-per-season: 7    # 每季节持续7个游戏日
+  real-time-days-per-season: 3</pre>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <!-- 2️⃣ 春季开花 -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-cherry-blossom"></i>
+            <h2>春季开花 · 唯美特效</h2>
+        </div>
+        <div class="card-summary">
+            <i class="fas fa-flower"></i> 春季中期橡树变为樱花树，花瓣纷飞，可强制花期延长。
+        </div>
+        <div class="details-wrapper">
+            <details>
+                <summary>展开开花机制与命令</summary>
+                <div class="detail-content">
+                    <p>春季的第34%~66%阶段，世界中所有橡树会自动转变为樱花树，破坏后掉落橡树树叶，保持原版生存平衡。管理员可使用命令手动控制花期：</p>
+                    <div class="code-block">
+                        <pre>/seasonadmin blossom      # 立即进入开花状态（仅春季可用）
+/seasonadmin blossom off   # 强制结束花期，樱花树变回橡树</pre>
+                    </div>
+                    <p>🌸 开花期间樱花树会飘落粉色粒子，营造梦幻氛围，夏季将自动恢复原状。</p>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <!-- 3️⃣ 作物季节表 -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-carrot"></i>
+            <h2>作物季节适配表</h2>
+        </div>
+        <div class="card-summary">
+            <i class="fas fa-table-list"></i> 每个作物拥有独立的四季适配规则，不适宜的季节无法生长。
+        </div>
+        <div class="details-wrapper">
+            <details>
+                <summary>查看默认作物季节表 (可配置)</summary>
+                <div class="detail-content">
+                    <table class="crop-table">
+                        <thead><tr><th>作物</th><th>春</th><th>夏</th><th>秋</th><th>冬</th></tr></thead>
+                        <tbody>
+                            <tr><td>小麦</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+                            <tr><td>胡萝卜</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+                            <tr><td>土豆</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                            <tr><td>甜菜根</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                            <tr><td>可可豆</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
+                            <tr><td>浆果</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+                            <tr><td>西瓜/南瓜</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                            <tr><td>火把花</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+                            <tr><td>瓶子草</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
+                            <tr><td>下界疣/蘑菇</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                        </tbody>
+                    </table>
+                    <p><i class="fas fa-info-circle"></i> 使用 <span class="inline-code">/season crops</span> 命令可随时查看当前季节适宜的作物列表，种子/作物物品Lore上也会显示四季适配表，当前季节高亮显示。</p>
+                    <p>⚡ <strong>生长速度倍率</strong>：春季所有作物加速生长（默认1.5倍），冬季几乎停滞（0.2倍），其他季节正常。所有数值可在配置中调整。</p>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <!-- 4️⃣ 命令与权限 -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-terminal"></i>
+            <h2>命令与权限</h2>
+        </div>
+        <div class="card-summary">
+            <i class="fas fa-crown"></i> 玩家指令、管理员指令，完全自定义季节控制。
+        </div>
+        <div class="details-wrapper">
+            <details>
+                <summary>展开完整命令列表</summary>
+                <div class="detail-content">
+                    <table>
+                        <thead><tr><th>命令</th><th>权限</th><th>说明</th></tr></thead>
+                        <tbody>
+                            <tr><td><span class="inline-code">/season</span> 或 <span class="inline-code">/s</span></td><td><span class="inline-code">seasonalplugin.use</span></td><td>查看当前季节详细报告（进度、推荐作物、小贴士）</td></tr>
+                            <tr><td><span class="inline-code">/season crops</span></td><td><span class="inline-code">seasonalplugin.use</span></td><td>查看所有作物的四季生长适配表</td></tr>
+                            <tr><td><span class="inline-code">/seasonadmin set &lt;季节&gt;</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td>手动设置季节 (spring/summer/autumn/winter)</td></tr>
+                            <tr><td><span class="inline-code">/seasonadmin reload</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td>重载配置文件</td></tr>
+                            <tr><td><span class="inline-code">/seasonadmin leafrefresh</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td>强制刷新树叶颜色与生物群系</td></tr>
+                            <tr><td><span class="inline-code">/seasonadmin blossom</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td>强制进入花期（仅春季可用）橡树→樱花</td></tr>
+                            <tr><td><span class="inline-code">/seasonadmin blossom off</span></td><td><span class="inline-code">seasonalplugin.admin</span></td><td>强制结束花期，樱花→橡树</td></tr>
+                        </tbody>
+                    </table>
+                    <p><i class="fas fa-user-tag"></i> 管理员还可通过 <span class="inline-code">/seasonadmin set</span> 任意跳转季节，方便测试与活动。</p>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <!-- 5️⃣ 配置总览 -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-sliders-h"></i>
+            <h2>核心配置 & 机制微调</h2>
+        </div>
+        <div class="card-summary">
+            <i class="fas fa-wrench"></i> 所有数值均可自定义，从天气概率到冻伤伤害，完全掌控。
+        </div>
+        <div class="details-wrapper">
+            <details>
+                <summary>展开主要配置项说明</summary>
+                <div class="detail-content">
+                    <ul style="margin-left: 1.2rem;">
+                        <li><span class="inline-code">weather.spring-rain-chance</span> — 春季下雨概率 (默认0.6)</li>
+                        <li><span class="inline-code">weather.summer-thunder-chance</span> — 夏季雷暴概率 (默认0.05)</li>
+                        <li><span class="inline-code">crop-growth.spring-multiplier</span> — 春季作物生长速度倍率</li>
+                        <li><span class="inline-code">harvest-boost.multiplier</span> — 秋季收获掉落倍率 (默认2.0)</li>
+                        <li><span class="inline-code">fishing-boost.spring-summer-multiplier</span> — 春/夏钓鱼掉落倍数 (1.5)</li>
+                        <li><span class="inline-code">freeze.damage-interval-ticks</span> — 冬季冻伤伤害间隔</li>
+                        <li><span class="inline-code">leaf-particles.enabled</span> — 树叶季节颜色开关</li>
+                    </ul>
+                    <p>完整配置文件位于 <span class="inline-code">plugins/SeasonalPlugin/config.yml</span>，修改后执行 <span class="inline-code">/seasonadmin reload</span> 即时生效。</p>
+                    <div class="code-block">
+                        <pre># 示例：调整冬季冻伤强度
+freeze:
+  enabled: true
+  damage-amount: 1.0         # 每次伤害数值
+  damage-interval-ticks: 80   # 每4秒检测一次
+  slow-amplifier: 1          # 缓慢效果等级</pre>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <!-- 6️⃣ 每日提示 -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-comment-dots"></i>
+            <h2>每日提示 & 沉浸辅助</h2>
+        </div>
+        <div class="card-summary">
+            <i class="fas fa-sun"></i> 玩家上线或天亮时自动推送季节情报与种植建议。
+        </div>
+        <div class="details-wrapper">
+            <details>
+                <summary>展开提示机制介绍</summary>
+                <div class="detail-content">
+                    <p>每日清晨或玩家首次进入服务器时，会收到一条精美的季节报告，包含：</p>
+                    <ul>
+                        <li>🌿 当前季节与剩余天数进度条</li>
+                        <li>🌾 最适合种植的三种作物</li>
+                        <li>💡 季节特性小贴士（如“春季橡树会开花”、“冬天记得穿靴子” ）</li>
+                    </ul>
+                    <p>该功能完全可配置，支持关闭或调整提示频率。同时，所有作物种子/物品上均会显示适配表格，鼠标悬浮即可查看各季节生长状态，当前季节高亮突出。</p>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <!-- 使用方式 & 编译 -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-cube"></i>
+            <h2>使用方式 & 编译</h2>
+        </div>
+        <div class="card-summary">
+            <i class="fas fa-terminal"></i> 基于 ScriptIrc 运行，快速部署。
+        </div>
+        <div class="details-wrapper">
+            <details>
+                <summary>查看详细部署步骤</summary>
+                <div class="detail-content">
+                    <p>1️⃣ 将项目导出为 <span class="inline-code">.sirc</span> 文件。<br>
+                    2️⃣ 放入服务端目录 <span class="inline-code">plugins/ScriptIrc/scripts/src/</span>。<br>
+                    3️⃣ 执行命令 <span class="inline-code">/scriptirc compiler SeasonalPlugin</span> 编译。<br>
+                    4️⃣ 编译成功后重启服务器或执行 <span class="inline-code">/reload confirm</span> 载入插件。</p>
+                    <p>✅ 无需任何外部依赖，兼容 Paper 1.21.x 及后续版本，插件会在启动时自动注册季节监听器。</p>
+                    <div class="code-block">
+                        <pre># 管理员命令示例
+/seasonadmin set autumn      # 直接切换至秋季
+/seasonadmin leafrefresh     # 强制刷新树叶颜色</pre>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <div class="footer">
+        <div>
+            <i class="fab fa-modrinth"></i> 官方下载：<a href="https://modrinth.com/plugin/seasonalplugin" target="_blank">https://modrinth.com/plugin/seasonalplugin</a>
+        </div>
+        <div>
+            <i class="fas fa-code-branch"></i> 兼容 Minecraft 1.21+ (Paper / Spigot) 
+            &nbsp;|&nbsp; <i class="fas fa-balance-scale"></i> 开源项目，自由扩展
+        </div>
+        <div>
+            设计：<i class="fas fa-leaf"></i> SeasonalPlugin 开发组 · 为原版生存注入四季灵魂
+        </div>
+        <div style="font-size: 0.8rem;">
+            <i class="fas fa-magic"></i> 树叶变色 | 作物季节限制 | 春季开花 | 冬季冻伤 | 钓鱼加成
+        </div>
+    </div>
+</div>
+
+<script>
+    // 为页面添加“展开所有详情”按钮（方便用户）
+    (function() {
+        const btnGroup = document.querySelector('.btn-group');
+        if (btnGroup && !document.getElementById('globalExpandBtn')) {
+            const expandBtn = document.createElement('a');
+            expandBtn.href = '#';
+            expandBtn.id = 'globalExpandBtn';
+            expandBtn.className = 'btn btn-outline btn-sm';
+            expandBtn.innerHTML = '<i class="fas fa-expand-alt"></i> 展开所有详情';
+            expandBtn.style.marginLeft = '0.5rem';
+            let expanded = false;
+            expandBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const allDetails = document.querySelectorAll('.details-wrapper details');
+                allDetails.forEach(detail => {
+                    if (expanded) detail.removeAttribute('open');
+                    else detail.setAttribute('open', 'true');
+                });
+                expanded = !expanded;
+                expandBtn.innerHTML = expanded ? '<i class="fas fa-compress-alt"></i> 折叠所有详情' : '<i class="fas fa-expand-alt"></i> 展开所有详情';
+            });
+            btnGroup.appendChild(expandBtn);
+        }
+    })();
+</script>
+</body>
+</html>
