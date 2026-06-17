@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -23,9 +24,13 @@ import java.util.*;
 /**
  * 树叶季节颜色管理器
  *
- * 1. biome 切换：春→FOREST 夏→原样 秋→SAVANNA 冬→SNOWY_TAIGA
+ * 1. biome 切换：根据季节切换已加载区块的 biome
+ *    春→温带森林类  夏→原样  秋→热带/针叶类  冬→雪地类
+ *    兼容 Terralith 等自定义 biome 数据包
+ *
  * 2. 春季中期（第34%~66%）：橡树树叶 → 樱花树叶（视觉欺骗）
- *    过了中期自动恢复，破坏时掉橡树树叶
+ *    新加载的区块也会自动替换，不会断层
+ *    破坏时掉橡树树叶
  *
  * 注意：白桦和云杉树叶颜色是硬编码的，不受 biome 影响
  */
@@ -39,32 +44,38 @@ public class LeafColorManager implements Listener {
     private final Map<String, Biome> modifiedBiomes = new HashMap<>();
     private Season lastSeason = null;
 
-    // 樱花替换记录：key = "世界名:x,y,z" -> 原 BlockData（用于恢复）
+    // 樱花替换记录
     private final Map<String, BlockData> cherryReplaced = new HashMap<>();
-    private boolean wasInCherryPeriod = false; // 上一轮是否在开花期
-    private boolean forcedBlossom = false;     // 是否强制开花（锁定到夏季）
+    private boolean wasInCherryPeriod = false;
+    private boolean forcedBlossom = false;
 
     // 春季三段比例
-    private static final double SPRING_EARLY_END = 0.33;   // 初春结束
-    private static final double SPRING_MID_END = 0.66;     // 仲春（开花）结束
+    private static final double SPRING_EARLY_END = 0.33;
+    private static final double SPRING_MID_END = 0.66;
 
-    // 各季节对应的目标 biome
-    private static final Map<Season, List<Biome>> SEASON_BIOMES = Map.of(
-            Season.SPRING, List.of(Biome.FOREST, Biome.BIRCH_FOREST, Biome.DARK_FOREST, Biome.FLOWER_FOREST),
-            Season.SUMMER, List.of(),
-            Season.AUTUMN, List.of(Biome.SAVANNA, Biome.SAVANNA_PLATEAU, Biome.WINDSWEPT_SAVANNA, Biome.TAIGA),
-            Season.WINTER, List.of(Biome.SNOWY_TAIGA, Biome.SNOWY_PLAINS, Biome.GROVE, Biome.SNOWY_SLOPES)
+    // ====== biome 匹配策略 ======
+    // 只跳过极端 biome（海洋、沙漠、下界、末地等），其他全部切换
+    // 兼容 Terralith 等任何自定义 biome 数据包
+
+    // 需要跳过的 biome key 关键词
+    private static final Set<String> SKIP_BIOME_KEYWORDS = Set.of(
+            "ocean", "river", "desert", "badlands", "nether", "crimson",
+            "warped", "soul", "basalt", "end_", "the_end", "small_end",
+            "mushroom", "deep_ocean", "frozen_ocean"
     );
 
-    private static final Set<Biome> SKIP_BIOMES = Set.of(
-            Biome.OCEAN, Biome.DEEP_OCEAN, Biome.WARM_OCEAN, Biome.LUKEWARM_OCEAN,
-            Biome.COLD_OCEAN, Biome.DEEP_COLD_OCEAN, Biome.DEEP_LUKEWARM_OCEAN,
-            Biome.DEEP_FROZEN_OCEAN, Biome.FROZEN_OCEAN,
-            Biome.RIVER, Biome.FROZEN_RIVER,
-            Biome.DESERT, Biome.BADLANDS, Biome.WOODED_BADLANDS, Biome.ERODED_BADLANDS,
-            Biome.NETHER_WASTES, Biome.SOUL_SAND_VALLEY, Biome.CRIMSON_FOREST,
-            Biome.WARPED_FOREST, Biome.BASALT_DELTAS,
-            Biome.THE_END, Biome.END_HIGHLANDS, Biome.END_MIDLANDS, Biome.SMALL_END_ISLANDS, Biome.END_BARRENS
+    // 已经是目标类型的 biome 关键词（不重复切换）
+    private static final Set<String> SPRING_TARGET_KEYWORDS = Set.of(
+            "forest", "birch", "flower", "plains", "meadow", "cherry",
+            "jungle", "swamp", "mangrove"
+    );
+
+    private static final Set<String> AUTUMN_TARGET_KEYWORDS = Set.of(
+            "savanna", "taiga", "windswept"
+    );
+
+    private static final Set<String> WINTER_TARGET_KEYWORDS = Set.of(
+            "snowy", "ice", "frozen", "grove", "slopes"
     );
 
     public LeafColorManager(SeasonalPlugin plugin, SeasonManager seasonManager, ConfigManager configManager) {
@@ -74,21 +85,16 @@ public class LeafColorManager implements Listener {
     }
 
     /**
-     * 强制立即刷新树叶和 biome（供管理员命令调用）
+     * 强制立即刷新树叶和 biome
      */
     public void forceRefresh() {
         Season season = seasonManager.getCurrentSeason();
-        // 先恢复所有
         restoreAllBiomes();
         restoreAllCherryLeaves();
         wasInCherryPeriod = false;
 
-        // 重新应用
         if (season != Season.SUMMER) {
-            List<Biome> targetBiomes = SEASON_BIOMES.get(season);
-            if (targetBiomes != null && !targetBiomes.isEmpty()) {
-                applySeasonBiomes(targetBiomes);
-            }
+            applySeasonBiomes(season);
         }
         if (season == Season.SPRING) {
             handleCherryBlossom();
@@ -96,13 +102,10 @@ public class LeafColorManager implements Listener {
     }
 
     /**
-     * 强制进入花期（无视春季进度），锁定到夏季来临
-     * 返回 true 表示成功，false 表示当前不是春季
+     * 强制进入花期
      */
     public boolean forceBlossomStart() {
-        if (seasonManager.getCurrentSeason() != Season.SPRING) {
-            return false;
-        }
+        if (seasonManager.getCurrentSeason() != Season.SPRING) return false;
         restoreAllCherryLeaves();
         cherryReplaced.clear();
         applyCherryReplacement();
@@ -120,9 +123,8 @@ public class LeafColorManager implements Listener {
         forcedBlossom = false;
     }
 
-    /**
-     * 启动定时任务，每 30 秒检查一次
-     */
+    // ==================== 定时任务 ====================
+
     public void startBiomeTask() {
         new BukkitRunnable() {
             @Override
@@ -131,10 +133,8 @@ public class LeafColorManager implements Listener {
 
                 Season season = seasonManager.getCurrentSeason();
 
-                // 检测换季
                 if (lastSeason != null && lastSeason != season) {
                     restoreAllBiomes();
-                    // 如果是春季→夏季，且是强制开花状态，自动结束
                     if (lastSeason == Season.SPRING && season == Season.SUMMER && forcedBlossom) {
                         forcedBlossom = false;
                     }
@@ -143,60 +143,151 @@ public class LeafColorManager implements Listener {
                 }
                 lastSeason = season;
 
-                // biome 切换（夏季不切）
                 if (season != Season.SUMMER) {
-                    List<Biome> targetBiomes = SEASON_BIOMES.get(season);
-                    if (targetBiomes != null && !targetBiomes.isEmpty()) {
-                        applySeasonBiomes(targetBiomes);
-                    }
+                    applySeasonBiomes(season);
                 }
 
-                // 樱花替换逻辑
                 if (season == Season.SPRING) {
-                    // 强制开花状态下，不按进度走，一直保持
-                    if (!forcedBlossom) {
-                        handleCherryBlossom();
-                    }
+                    if (!forcedBlossom) handleCherryBlossom();
                 } else {
-                    // 其他季节如果有残留的樱花，恢复
-                    if (!cherryReplaced.isEmpty()) {
-                        restoreAllCherryLeaves();
-                    }
+                    if (!cherryReplaced.isEmpty()) restoreAllCherryLeaves();
                     wasInCherryPeriod = false;
                     forcedBlossom = false;
                 }
             }
-        }.runTaskTimer(plugin, 100L, 600L); // 每 30 秒
+        }.runTaskTimer(plugin, 100L, 600L);
+    }
+
+    /**
+     * 新区块加载时自动应用 biome 和樱花替换
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onChunkLoad(ChunkLoadEvent event) {
+        if (!configManager.isLeafParticlesEnabled()) return;
+
+        Season season = seasonManager.getCurrentSeason();
+        Chunk chunk = event.getChunk();
+
+        // biome 切换
+        if (season != Season.SUMMER) {
+            applyBiomesToChunk(chunk, season);
+        }
+
+        // 樱花替换
+        if (season == Season.SPRING) {
+            boolean inCherryPeriod = forcedBlossom ||
+                    (getSpringProgress() >= SPRING_EARLY_END && getSpringProgress() < SPRING_MID_END);
+            if (inCherryPeriod) {
+                applyCherryToChunk(chunk);
+            }
+        }
+    }
+
+    // ==================== biome 切换（关键词匹配，兼容 Terralith） ====================
+
+    /**
+     * 对所有已加载区块应用季节 biome
+     */
+    private void applySeasonBiomes(Season season) {
+        for (World world : plugin.getServer().getWorlds()) {
+            if (!world.hasSkyLight()) continue;
+            for (Chunk chunk : world.getLoadedChunks()) {
+                applyBiomesToChunk(chunk, season);
+            }
+        }
+    }
+
+    /**
+     * 对单个区块应用季节 biome
+     */
+    private void applyBiomesToChunk(Chunk chunk, Season season) {
+        World world = chunk.getWorld();
+        int chunkX = chunk.getX() << 4;
+        int chunkZ = chunk.getZ() << 4;
+
+        int[][] samplePoints = {{4, 4}, {4, 12}, {12, 4}, {12, 12}, {8, 8}};
+
+        for (int[] point : samplePoints) {
+            int bx = chunkX + point[0];
+            int bz = chunkZ + point[1];
+
+            Biome original = world.getBiome(bx, 0, bz);
+            String biomeKey = original.getKey().toString().toLowerCase();
+
+            // 跳过不该改的 biome
+            if (shouldSkipBiome(biomeKey)) continue;
+
+            String key = world.getName() + ":" + chunk.getX() + "," + chunk.getZ();
+            modifiedBiomes.putIfAbsent(key, original);
+
+            // 根据季节选目标 biome
+            Biome target = getTargetBiome(original, season);
+            if (target != null && target != original) {
+                world.setBiome(bx, 0, bz, target);
+            }
+        }
+    }
+
+    /**
+     * 判断 biome 是否应该被跳过
+     */
+    private boolean shouldSkipBiome(String biomeKey) {
+        for (String keyword : SKIP_BIOME_KEYWORDS) {
+            if (biomeKey.contains(keyword)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * 根据季节选择目标 biome
+     * 只要不是目标类型就切换（兼容 Terralith）
+     */
+    private Biome getTargetBiome(Biome original, Season season) {
+        String key = original.getKey().toString().toLowerCase();
+
+        return switch (season) {
+            case SPRING -> {
+                if (containsKeyword(key, SPRING_TARGET_KEYWORDS)) yield null;
+                yield Biome.FOREST;
+            }
+            case AUTUMN -> {
+                if (containsKeyword(key, AUTUMN_TARGET_KEYWORDS)) yield null;
+                yield Biome.SAVANNA;
+            }
+            case WINTER -> {
+                if (containsKeyword(key, WINTER_TARGET_KEYWORDS)) yield null;
+                yield Biome.SNOWY_TAIGA;
+            }
+            default -> null;
+        };
+    }
+
+    private boolean containsKeyword(String key, Set<String> keywords) {
+        for (String kw : keywords) {
+            if (key.contains(kw)) return true;
+        }
+        return false;
     }
 
     // ==================== 樱花替换 ====================
 
-    /**
-     * 春季樱花逻辑：初春→无，仲春→替换，晚春→恢复
-     */
     private void handleCherryBlossom() {
         double progress = getSpringProgress();
-        boolean inCherryPeriod = (progress >= SPRING_EARLY_END && progress < SPRING_MID_END);
+        boolean inCherryPeriod = progress >= SPRING_EARLY_END && progress < SPRING_MID_END;
 
         if (inCherryPeriod) {
-            // 进入开花期：替换橡树树叶为樱花树叶
             if (!wasInCherryPeriod) {
                 plugin.getLogger().info("§d🌸 春季花开！橡树化作樱花...");
             }
             applyCherryReplacement();
             wasInCherryPeriod = true;
         } else if (wasInCherryPeriod) {
-            // 离开开花期：恢复橡树树叶
             plugin.getLogger().info("§a花期结束，樱花散去...");
             restoreAllCherryLeaves();
             wasInCherryPeriod = false;
         }
-        // 初春或晚春但之前不在开花期：啥也不做
     }
 
-    /**
-     * 获取春季进度（0.0 ~ 1.0）
-     */
     private double getSpringProgress() {
         int day = seasonManager.getDayOfSeason();
         int total = seasonManager.getTotalDaysInSeason();
@@ -204,47 +295,46 @@ public class LeafColorManager implements Listener {
     }
 
     /**
-     * 把已加载区块的橡树树叶替换为樱花树叶
+     * 对所有已加载区块应用樱花替换
      */
     private void applyCherryReplacement() {
         for (World world : plugin.getServer().getWorlds()) {
             if (!world.hasSkyLight()) continue;
-
             for (Chunk chunk : world.getLoadedChunks()) {
-                int chunkX = chunk.getX() << 4;
-                int chunkZ = chunk.getZ() << 4;
+                applyCherryToChunk(chunk);
+            }
+        }
+    }
 
-                for (int x = 0; x < 16; x++) {
-                    for (int z = 0; z < 16; z++) {
-                        int bx = chunkX + x;
-                        int bz = chunkZ + z;
+    /**
+     * 对单个区块应用樱花替换
+     */
+    private void applyCherryToChunk(Chunk chunk) {
+        World world = chunk.getWorld();
+        int chunkX = chunk.getX() << 4;
+        int chunkZ = chunk.getZ() << 4;
 
-                        // 只检查地表到地表+16 高度的橡树树叶
-                        int minY = world.getMinHeight();
-                        int maxY = world.getMaxHeight();
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                int bx = chunkX + x;
+                int bz = chunkZ + z;
 
-                        for (int y = minY; y < maxY; y++) {
-                            Block block = world.getBlockAt(bx, y, bz);
-                            if (block.getType() == Material.OAK_LEAVES
-                                    || block.getType() == Material.DARK_OAK_LEAVES) {
+                for (int y = world.getMinHeight(); y < world.getMaxHeight(); y++) {
+                    Block block = world.getBlockAt(bx, y, bz);
+                    if (block.getType() == Material.OAK_LEAVES
+                            || block.getType() == Material.DARK_OAK_LEAVES) {
 
-                                String key = world.getName() + ":" + bx + "," + y + "," + bz;
-                                // 只记录一次
-                                if (!cherryReplaced.containsKey(key)) {
-                                    cherryReplaced.put(key, block.getBlockData());
-                                }
-                                block.setType(Material.CHERRY_LEAVES, false);
-                            }
+                        String key = world.getName() + ":" + bx + "," + y + "," + bz;
+                        if (!cherryReplaced.containsKey(key)) {
+                            cherryReplaced.put(key, block.getBlockData());
                         }
+                        block.setType(Material.CHERRY_LEAVES, false);
                     }
                 }
             }
         }
     }
 
-    /**
-     * 恢复所有被替换的樱花树叶为橡树树叶
-     */
     private void restoreAllCherryLeaves() {
         if (cherryReplaced.isEmpty()) return;
 
@@ -261,68 +351,29 @@ public class LeafColorManager implements Listener {
             int z = Integer.parseInt(coords[2]);
 
             Block block = world.getBlockAt(x, y, z);
-            // 只恢复仍然是樱花树叶的方块（玩家手动放的不管）
             if (block.getType() == Material.CHERRY_LEAVES) {
                 block.setType(Material.OAK_LEAVES, false);
                 block.setBlockData(entry.getValue(), false);
             }
         }
-
         cherryReplaced.clear();
     }
 
-    /**
-     * 破坏樱花树叶时掉落橡树树叶
-     */
     @EventHandler(priority = EventPriority.HIGH)
     public void onCherryLeafBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
         if (block.getType() != Material.CHERRY_LEAVES) return;
 
-        // 检查这块是不是我们替换的
         String key = block.getWorld().getName() + ":" + block.getX() + ","
                 + block.getY() + "," + block.getZ();
 
         if (cherryReplaced.containsKey(key)) {
-            // 取消原版掉落
             event.setDropItems(false);
-            // 掉落橡树树叶
-            Location loc = block.getLocation();
-            loc.getWorld().dropItemNaturally(loc, new ItemStack(Material.OAK_LEAVES));
+            block.getWorld().dropItemNaturally(block.getLocation(), new ItemStack(Material.OAK_LEAVES));
         }
     }
 
-    // ==================== biome 切换 ====================
-
-    private void applySeasonBiomes(List<Biome> targetBiomes) {
-        Random random = new Random();
-
-        for (World world : plugin.getServer().getWorlds()) {
-            if (!world.hasSkyLight()) continue;
-
-            for (Chunk chunk : world.getLoadedChunks()) {
-                int chunkX = chunk.getX() << 4;
-                int chunkZ = chunk.getZ() << 4;
-
-                int[][] samplePoints = {{4, 4}, {4, 12}, {12, 4}, {12, 12}, {8, 8}};
-
-                for (int[] point : samplePoints) {
-                    int bx = chunkX + point[0];
-                    int bz = chunkZ + point[1];
-
-                    Biome original = world.getBiome(bx, 0, bz);
-                    if (SKIP_BIOMES.contains(original)) continue;
-                    if (targetBiomes.contains(original)) continue;
-
-                    String key = world.getName() + ":" + chunk.getX() + "," + chunk.getZ();
-                    modifiedBiomes.putIfAbsent(key, original);
-
-                    Biome target = targetBiomes.get(random.nextInt(targetBiomes.size()));
-                    world.setBiome(bx, 0, bz, target);
-                }
-            }
-        }
-    }
+    // ==================== biome 恢复 ====================
 
     private void restoreAllBiomes() {
         if (modifiedBiomes.isEmpty()) return;

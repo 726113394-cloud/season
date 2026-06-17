@@ -21,7 +21,8 @@ import java.util.UUID;
 /**
  * 冬季冻伤机制
  * 玩家同时没穿靴子 + 没穿护腿时，在户外会冻伤
- * 冻伤效果：缓慢 + 持续掉血
+ * 供暖区域内不受冻伤
+ * 冻伤效果：缓慢 + 持续掉血（每分钟一次）
  */
 public class FreezeListener implements Listener {
 
@@ -29,6 +30,8 @@ public class FreezeListener implements Listener {
     private final ConfigManager configManager;
     private final SeasonManager seasonManager;
     private final Set<UUID> frozenPlayers = new HashSet<>();
+    private final Set<UUID> inHeatArea = new HashSet<>(); // 记录在供暖区域内的玩家
+    private HeatAreaManager heatAreaManager;
 
     public FreezeListener(SeasonalPlugin plugin, ConfigManager configManager, SeasonManager seasonManager) {
         this.plugin = plugin;
@@ -36,8 +39,13 @@ public class FreezeListener implements Listener {
         this.seasonManager = seasonManager;
     }
 
+    public void setHeatAreaManager(HeatAreaManager heatAreaManager) {
+        this.heatAreaManager = heatAreaManager;
+    }
+
     /**
      * 启动冻伤检查定时器
+     * 固定每分钟检查一次（1200 tick），伤害固定 1 点
      */
     public void startFreezeTask() {
         new BukkitRunnable() {
@@ -53,10 +61,27 @@ public class FreezeListener implements Listener {
                     checkAndApplyFreeze(player);
                 }
             }
-        }.runTaskTimer(plugin, 100L, configManager.getFreezeIntervalTicks());
+        }.runTaskTimer(plugin, 100L, 1200L); // 每分钟一次
     }
 
     private void checkAndApplyFreeze(Player player) {
+        UUID uuid = player.getUniqueId();
+
+        // 供暖区域内不受冻伤
+        if (heatAreaManager != null && heatAreaManager.isInHeatArea(player.getLocation())) {
+            frozenPlayers.remove(uuid);
+            if (!inHeatArea.contains(uuid)) {
+                inHeatArea.add(uuid);
+                player.sendMessage("§6🔥 §e你进入了供暖区域，寒意消散了！");
+            }
+            return;
+        } else {
+            if (inHeatArea.contains(uuid)) {
+                inHeatArea.remove(uuid);
+                player.sendMessage("§b❄ §3你离开了供暖区域，寒冷再次袭来……");
+            }
+        }
+
         // 只对户外玩家生效（头顶有天空光照）
         if (!player.getWorld().hasSkyLight()) return;
         if (player.getLocation().getBlock().getLightFromSky() < 15) return;
@@ -69,14 +94,14 @@ public class FreezeListener implements Listener {
 
         // 必须同时没穿靴子 AND 没穿护腿才触发
         if (hasBoots && hasLeggings) {
-            frozenPlayers.remove(player.getUniqueId());
+            frozenPlayers.remove(uuid);
             return;
         }
 
-        UUID uuid = player.getUniqueId();
         if (!frozenPlayers.contains(uuid)) {
             frozenPlayers.add(uuid);
             player.sendMessage("§b❄ §3你感到刺骨的寒意……冻伤了！");
+            player.sendMessage("§7💡 请穿上 §f靴子 §7和 §f护腿 §7来抵御寒冷！");
         }
 
         // 缓慢效果
@@ -87,8 +112,8 @@ public class FreezeListener implements Listener {
                 false, true
         ));
 
-        // 伤害（用火焰抗性类似的免疫检测避免误判）
-        player.damage(configManager.getFreezeDamage());
+        // 伤害固定 1 点
+        player.damage(1.0);
     }
 
     /**
@@ -99,9 +124,8 @@ public class FreezeListener implements Listener {
         if (!(event.getEntity() instanceof Player)) return;
         if (!frozenPlayers.contains(event.getEntity().getUniqueId())) return;
 
-        // 如果伤害来自冻伤定时器，标记为自定义伤害避免冲突
         if (event.getCause() == EntityDamageEvent.DamageCause.CUSTOM) {
-            event.setDamage(configManager.getFreezeDamage());
+            event.setDamage(1.0);
         }
     }
 }

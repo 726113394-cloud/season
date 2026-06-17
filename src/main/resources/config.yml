@@ -9,12 +9,17 @@ ScriptIrc-config-version: 1
 #  季节更替设置
 # ============================================
 season-cycle:
-  # true = 现实时间, false = 游戏内天数
-  use-real-time: true
+  # true = 现实时间, false = 游戏内天数（默认）
+  use-real-time: false
   # 现实时间：每 N 天换季（仅 use-real-time: true 时生效）
   real-time-days-per-season: 7
-  # 游戏天数：每 N 个 MC 天换季（仅 use-real-time: false 时生效）
-  mc-days-per-season: 30
+  # 各季节游戏天数（仅 use-real-time: false 时生效）
+  # 冬季比春秋少1天，夏季比春秋多1天，更符合现实四季时长
+  season-days:
+    spring: 30
+    summer: 31
+    autumn: 30
+    winter: 29
 
 # ============================================
 #  天气控制

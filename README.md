@@ -14,9 +14,11 @@
 - **作物 Lore** — 种子/作物物品上显示四季适配表，当前季节高亮
 - **秋季收获翻倍** — 秋季收割成熟作物时掉落物翻倍（倍率可配置）
 - **春/夏钓鱼加成** — 鱼类掉落翻倍 + 钓鱼速度加快
-- **冬季冻伤** — 没穿靴子和护腿的玩家在户外会缓慢掉血 + 获得缓慢效果
-- **每日提示** — 玩家上线、每天天亮时提示当前季节、第几天、适合种什么
-- **作物季节表** — `/season crops` 查看所有作物的四季生长适配表
+- **冬季冻伤** — 没穿靴子和护腿的玩家在户外会缓慢掉血 + 获得缓慢效果（每分钟一次）
+- **供暖区域** — 用烈焰棒选点创建供暖区域，区域内不受冻伤；默认出生点自带 21×21 供暖区
+- **供暖计费** — 创建区域每方块 10 游戏币（Vault），删除返还每方块 4 游戏币
+- **每日提示** — 玩家上线、每天 0 刻太阳升起时提示当前季节、第几天、适合种什么
+- **作物季节表** — `/season crops` 查看当前季节适合/不适合种植的作物
 
 ## 命令
 
@@ -29,6 +31,12 @@
 | `/seasonadmin leafrefresh` | `seasonalplugin.admin` | 强制刷新树叶颜色和 biome |
 | `/seasonadmin blossom` | `seasonalplugin.admin` | 强制进入花期（仅春季可用），橡树→樱花，持续到夏季 |
 | `/seasonadmin blossom off` | `seasonalplugin.admin` | 强制结束花期，樱花→橡树 |
+| `/seasonadmin heat wand` | `seasonalplugin.admin` | 获取烈焰棒选点工具 |
+| `/seasonadmin heat create` | `seasonalplugin.admin` | 根据选点创建供暖区域（每方块 10 游戏币） |
+| `/seasonadmin heat set <世界> <x1> <y1> <z1> <x2> <y2> <z2>` | `seasonalplugin.admin` | 直接设置供暖区域 |
+| `/seasonadmin heat list` | `seasonalplugin.admin` | 列出所有供暖区域 |
+| `/seasonadmin heat remove <编号>` | `seasonalplugin.admin` | 删除供暖区域（返还每方块 4 游戏币） |
+| `/seasonadmin heat clear` | `seasonalplugin.admin` | 清除所有非默认供暖区域 |
 
 ## 作物季节适配表（默认）
 
@@ -50,14 +58,16 @@
 详见 `config.yml`，所有数值均可自定义。
 
 主要配置项：
-- `season-cycle.use-real-time` — 换季方式（true=现实时间，false=游戏天数）
+- `season-cycle.use-real-time` — 换季方式（true=现实时间，false=游戏天数，默认）
 - `season-cycle.real-time-days-per-season` — 现实天数换季间隔
+- `season-cycle.season-days.*` — 各季节游戏天数（春30/夏31/秋30/冬29，可自由配置）
 - `weather.*-chance` — 各季节下雨/雷暴概率
 - `crop-growth.*-multiplier` — 各季节作物生长倍率
 - `harvest-boost.multiplier` — 秋季收获倍率
 - `fishing-boost.*` — 钓鱼加成设置
 - `freeze.*` — 冻伤机制设置
 - `leaf-particles.enabled` — 树叶季节颜色开关
+- 依赖插件: **Vault**（经济系统，用于供暖区域计费）
 
 ## 使用方式
 

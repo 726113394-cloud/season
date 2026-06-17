@@ -85,8 +85,6 @@ public class SeasonManager {
 
     private void tickGameTime() {
         long currentTime = plugin.getServer().getWorlds().get(0).getFullTime();
-        long daysPerSeason = configManager.getMcDaysPerSeason();
-        long ticksPerSeason = daysPerSeason * 24000L; // 1 MC 天 = 24000 tick
 
         if (seasonStartGameTime == 0) {
             seasonStartGameTime = currentTime;
@@ -94,12 +92,13 @@ public class SeasonManager {
             return;
         }
 
+        // 按当前季节获取对应的天数
+        long daysForThisSeason = configManager.getDaysForSeason(currentSeason.name().toLowerCase());
+        long ticksForThisSeason = daysForThisSeason * 24000L;
+
         long elapsed = currentTime - seasonStartGameTime;
-        if (elapsed >= ticksPerSeason) {
-            long seasonsToAdvance = elapsed / ticksPerSeason;
-            for (int i = 0; i < seasonsToAdvance; i++) {
-                currentSeason = currentSeason.next();
-            }
+        if (elapsed >= ticksForThisSeason) {
+            currentSeason = currentSeason.next();
             seasonStartGameTime = currentTime;
             saveSeasonData();
             plugin.getServer().broadcastMessage("§6[四季] §e季节更替！当前季节：" + currentSeason.getColoredName());
@@ -119,9 +118,10 @@ public class SeasonManager {
             return remaining + " 天";
         } else {
             long currentTime = plugin.getServer().getWorlds().get(0).getFullTime();
-            long ticksPerSeason = (long) configManager.getMcDaysPerSeason() * 24000L;
+            long daysForThisSeason = configManager.getDaysForSeason(currentSeason.name().toLowerCase());
+            long ticksForThisSeason = daysForThisSeason * 24000L;
             long elapsed = currentTime - seasonStartGameTime;
-            long remainingTicks = ticksPerSeason - elapsed;
+            long remainingTicks = ticksForThisSeason - elapsed;
             if (remainingTicks <= 0) return "即将更替";
             long remainingDays = remainingTicks / 24000;
             return remainingDays + " 个MC天";
@@ -138,10 +138,10 @@ public class SeasonManager {
             return (int) Math.min(daysPassed + 1, configManager.getRealTimeDaysPerSeason());
         } else {
             long currentTime = plugin.getServer().getWorlds().get(0).getFullTime();
-            long ticksPerSeason = (long) configManager.getMcDaysPerSeason() * 24000L;
             long elapsed = currentTime - seasonStartGameTime;
             int day = (int) (elapsed / 24000) + 1;
-            return Math.min(day, configManager.getMcDaysPerSeason());
+            int maxDays = configManager.getDaysForSeason(currentSeason.name().toLowerCase());
+            return Math.min(day, maxDays);
         }
     }
 
@@ -152,7 +152,7 @@ public class SeasonManager {
         if (configManager.isUseRealTime()) {
             return configManager.getRealTimeDaysPerSeason();
         } else {
-            return configManager.getMcDaysPerSeason();
+            return configManager.getDaysForSeason(currentSeason.name().toLowerCase());
         }
     }
 

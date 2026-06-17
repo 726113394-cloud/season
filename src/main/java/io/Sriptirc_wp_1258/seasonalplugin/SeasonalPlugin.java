@@ -8,11 +8,14 @@ import io.Sriptirc_wp_1258.seasonalplugin.crop.CropLoreApplier;
 import io.Sriptirc_wp_1258.seasonalplugin.mechanic.FishingBoostListener;
 import io.Sriptirc_wp_1258.seasonalplugin.mechanic.FreezeListener;
 import io.Sriptirc_wp_1258.seasonalplugin.mechanic.HarvestBoostListener;
+import io.Sriptirc_wp_1258.seasonalplugin.mechanic.HeatAreaManager;
 import io.Sriptirc_wp_1258.seasonalplugin.mechanic.LeafColorManager;
 import io.Sriptirc_wp_1258.seasonalplugin.season.SeasonManager;
 import io.Sriptirc_wp_1258.seasonalplugin.season.SeasonScheduler;
 import io.Sriptirc_wp_1258.seasonalplugin.season.SeasonTipManager;
 import io.Sriptirc_wp_1258.seasonalplugin.weather.WeatherManager;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SeasonalPlugin extends JavaPlugin {
@@ -24,6 +27,8 @@ public final class SeasonalPlugin extends JavaPlugin {
     private FreezeListener freezeListener;
     private SeasonTipManager tipManager;
     private LeafColorManager leafColorManager;
+    private HeatAreaManager heatAreaManager;
+    private Economy economy;
 
     @Override
     public void onEnable() {
@@ -42,6 +47,17 @@ public final class SeasonalPlugin extends JavaPlugin {
             // Lore 注入器
             this.loreApplier = new CropLoreApplier(configManager, seasonManager);
 
+            // Vault 经济对接
+            if (!setupEconomy()) {
+                getLogger().warning("§e未找到 Vault 经济插件，供暖区域计费功能将不可用");
+            }
+
+            // 供暖区域管理
+            this.heatAreaManager = new HeatAreaManager(this);
+            if (economy != null) heatAreaManager.setEconomy(economy);
+            heatAreaManager.startParticleTask();
+            heatAreaManager.createSpawnArea();
+
             // 注册监听器
             getServer().getPluginManager().registerEvents(
                     new CropListener(this, configManager, seasonManager, loreApplier), this);
@@ -51,6 +67,7 @@ public final class SeasonalPlugin extends JavaPlugin {
                     new FishingBoostListener(configManager, seasonManager), this);
 
             this.freezeListener = new FreezeListener(this, configManager, seasonManager);
+            freezeListener.setHeatAreaManager(heatAreaManager);
             getServer().getPluginManager().registerEvents(freezeListener, this);
             freezeListener.startFreezeTask();
 
@@ -68,6 +85,8 @@ public final class SeasonalPlugin extends JavaPlugin {
             getCommand("season").setExecutor(new SeasonCommand(seasonManager));
             SeasonAdminCommand adminCmd = new SeasonAdminCommand(this, seasonManager, weatherManager);
             adminCmd.setLeafColorManager(leafColorManager);
+            adminCmd.setHeatAreaManager(heatAreaManager);
+            getServer().getPluginManager().registerEvents(adminCmd, this);
             getCommand("seasonadmin").setExecutor(adminCmd);
             getCommand("seasonadmin").setTabCompleter(adminCmd);
 
@@ -81,5 +100,13 @@ public final class SeasonalPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("四季插件已卸载");
+    }
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) return false;
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) return false;
+        economy = rsp.getProvider();
+        return economy != null;
     }
 }

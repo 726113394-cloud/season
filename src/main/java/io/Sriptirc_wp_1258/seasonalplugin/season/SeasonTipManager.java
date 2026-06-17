@@ -65,9 +65,9 @@ public class SeasonTipManager implements Listener {
                 // 检查是否是新的一天（且不是刚启动）
                 if (day != lastTipDay && lastTipDay != -1) {
                     lastTipDay = day;
-                    // 只在白天（1000~12000 tick）提示
+                    // 0刻太阳升起时提示全服
                     long timeOfDay = time % 24000;
-                    if (timeOfDay >= 1000 && timeOfDay <= 12000) {
+                    if (timeOfDay >= 0 && timeOfDay < 2000) {
                         Bukkit.broadcastMessage(buildDailyBroadcast());
                     }
                 } else if (lastTipDay == -1) {

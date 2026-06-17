@@ -16,7 +16,10 @@ public class ConfigManager {
     // === 季节更替 ===
     private boolean useRealTime;
     private int realTimeDaysPerSeason;
-    private int mcDaysPerSeason;
+    private int springDays;
+    private int summerDays;
+    private int autumnDays;
+    private int winterDays;
 
     // === 天气 ===
     private boolean weatherEnabled;
@@ -76,9 +79,12 @@ public class ConfigManager {
         }
 
         // === 季节更替 ===
-        useRealTime = config.getBoolean("season-cycle.use-real-time", true);
+        useRealTime = config.getBoolean("season-cycle.use-real-time", false);
         realTimeDaysPerSeason = config.getInt("season-cycle.real-time-days-per-season", 7);
-        mcDaysPerSeason = config.getInt("season-cycle.mc-days-per-season", 30);
+        springDays = config.getInt("season-cycle.season-days.spring", 30);
+        summerDays = config.getInt("season-cycle.season-days.summer", 31);
+        autumnDays = config.getInt("season-cycle.season-days.autumn", 30);
+        winterDays = config.getInt("season-cycle.season-days.winter", 29);
 
         // === 天气 ===
         weatherEnabled = config.getBoolean("weather.enabled", true);
@@ -126,7 +132,19 @@ public class ConfigManager {
 
     public boolean isUseRealTime() { return useRealTime; }
     public int getRealTimeDaysPerSeason() { return realTimeDaysPerSeason; }
-    public int getMcDaysPerSeason() { return mcDaysPerSeason; }
+
+    /**
+     * 获取指定季节的游戏天数
+     */
+    public int getDaysForSeason(String season) {
+        return switch (season.toLowerCase()) {
+            case "spring" -> springDays;
+            case "summer" -> summerDays;
+            case "autumn" -> autumnDays;
+            case "winter" -> winterDays;
+            default -> 30;
+        };
+    }
 
     public boolean isWeatherEnabled() { return weatherEnabled; }
     public double getRainChanceForSeason(String season) {
